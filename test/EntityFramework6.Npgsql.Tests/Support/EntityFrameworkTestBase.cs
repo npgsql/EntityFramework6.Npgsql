@@ -33,9 +33,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity.Core.Metadata.Edm;
 using System.Data.Entity.Core.Objects;
 using System.Data.Entity.Infrastructure;
-using Npgsql.Tests;
 using NpgsqlTypes;
 
+// ReSharper disable once CheckNamespace
 namespace EntityFramework6.Npgsql.Tests
 {
     public abstract class EntityFrameworkTestBase : TestBase
@@ -44,7 +44,7 @@ namespace EntityFramework6.Npgsql.Tests
         public override void TestFixtureSetup()
         {
             base.TestFixtureSetup();
-            using (var context = new BloggingContext(ConnectionStringEF))
+            using (var context = new BloggingContext(ConnectionString))
             {
                 if (context.Database.Exists())
                     context.Database.Delete();//We delete to be 100% schema is synced
@@ -52,7 +52,7 @@ namespace EntityFramework6.Npgsql.Tests
             }
 
             // Create sequence for the IntComputedValue property.
-            using (var createSequenceConn = OpenConnection(ConnectionStringEF))
+            using (var createSequenceConn = OpenConnection(ConnectionString))
             {
                 createSequenceConn.ExecuteNonQuery("create sequence blog_int_computed_value_seq");
                 createSequenceConn.ExecuteNonQuery("alter table \"dbo\".\"Blogs\" alter column \"IntComputedValue\" set default nextval('blog_int_computed_value_seq');");
@@ -68,7 +68,7 @@ namespace EntityFramework6.Npgsql.Tests
         [SetUp]
         protected void SetUp()
         {
-            using (var context = new BloggingContext(ConnectionStringEF))
+            using (var context = new BloggingContext(ConnectionString))
             {
                 context.Blogs.RemoveRange(context.Blogs);
                 context.Posts.RemoveRange(context.Posts);

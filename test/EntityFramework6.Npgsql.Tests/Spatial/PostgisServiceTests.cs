@@ -1,9 +1,10 @@
-﻿using NpgsqlTypes;
-using NUnit.Framework;
-using System;
+﻿using System;
+using Npgsql;
 using Npgsql.Spatial;
+using NpgsqlTypes;
+using NUnit.Framework;
 
-namespace Npgsql.Tests.Spatial
+namespace EntityFramework6.Npgsql.Tests.Spatial
 {
     public class PostgisServiceTests : TestBase
     {
@@ -21,7 +22,7 @@ namespace Npgsql.Tests.Spatial
             }
         }
 
-        [Test()]
+        [Test]
         public void AsBinaryTest()
         {
             var p = new PostgisPoint(1D, 1D);
@@ -37,13 +38,13 @@ namespace Npgsql.Tests.Spatial
             }
         }
 
-        [Test()]
+        [Test]
         public void AsBinaryTestGeog()
         {
             Assert.Ignore("not implemented");
         }
 
-        [Test()]
+        [Test]
         public void AsGmlTest()
         {
             var p = new PostgisPoint(1D, 1D);
@@ -59,13 +60,13 @@ namespace Npgsql.Tests.Spatial
             }
         }
 
-        [Test()]
+        [Test]
         public void AsGmlTestGeog()
         {
             Assert.Ignore("not implemented");
         }
 
-        [Test()]
+        [Test]
         public void AsTextTest()
         {
             var p = new PostgisPoint(1D, 1D);
@@ -81,13 +82,13 @@ namespace Npgsql.Tests.Spatial
             }
         }
 
-        [Test()]
+        [Test]
         public void AsTextTestGeog()
         {
             Assert.Ignore("not implemented");
         }
 
-        [Test()]
+        [Test]
         public void BufferTest()
         {
             var p = new PostgisPoint(1D, 1D);
@@ -103,13 +104,13 @@ namespace Npgsql.Tests.Spatial
             }
         }
 
-        [Test()]
+        [Test]
         public void BufferTest1()
         {
             Assert.Ignore("not implemented");
         }
 
-        [Test()]
+        [Test]
         public void ContainsTest()
         {
             var p = new PostgisPoint(1D, 1D);
@@ -135,7 +136,7 @@ namespace Npgsql.Tests.Spatial
             }
         }
 
-        [Test()]
+        [Test]
         public void CreateProviderValueTest()
         {
             var svcs = new PostgisServices();
@@ -152,13 +153,13 @@ namespace Npgsql.Tests.Spatial
             }
         }
 
-        [Test()]
+        [Test]
         public void CreateProviderValueTestGeog()
         {
             Assert.Ignore("not implemented");
         }
 
-        [Test()]
+        [Test]
         public void CreateWellKnownValueTest()
         {
             var svcs = new PostgisServices();
@@ -173,13 +174,13 @@ namespace Npgsql.Tests.Spatial
             }
         }
 
-        [Test()]
+        [Test]
         public void CreateWellKnownValueTestGeog()
         {
             Assert.Ignore("not implemented");
         }
 
-        [Test()]
+        [Test]
         public void CrossesTest()
         {
             var svcs = new PostgisServices();
@@ -195,7 +196,7 @@ namespace Npgsql.Tests.Spatial
             }
         }
 
-        [Test()]
+        [Test]
         public void DifferenceTest()
         {
             var svcs = new PostgisServices();
@@ -211,13 +212,13 @@ namespace Npgsql.Tests.Spatial
             }
         }
 
-        [Test()]
+        [Test]
         public void DifferenceTestGeog()
         {
             Assert.Ignore("not implemented");
         }
 
-        [Test()]
+        [Test]
         public void DisjointTest()
         {
             var svcs = new PostgisServices();
@@ -233,13 +234,13 @@ namespace Npgsql.Tests.Spatial
             }
         }
 
-        [Test()]
+        [Test]
         public void DisjointTestGeog()
         {
             Assert.Ignore("not implemented");
         }
 
-        [Test()]
+        [Test]
         public void DistanceTest()
         {
             var svcs = new PostgisServices();
@@ -255,13 +256,13 @@ namespace Npgsql.Tests.Spatial
             }
         }
 
-        [Test()]
+        [Test]
         public void DistanceTestGeog()
         {
             Assert.Ignore("not implemented");
         }
 
-        [Test()]
+        [Test]
         public void ElementAtTest()
         {
             var svcs = new PostgisServices();
@@ -278,139 +279,139 @@ namespace Npgsql.Tests.Spatial
             }
         }
 
-        [Test()]
+        [Test]
         public void ElementAtTestGeog()
         {
             Assert.Ignore("not implemented");
         }
 
-        [Test()]
+        [Test]
         public void GeographyCollectionFromBinaryTest()
         {
             Assert.Ignore("not implemented");
         }
 
-        [Test()]
+        [Test]
         public void GeographyCollectionFromTextTest()
         {
             Assert.Ignore("not implemented");
         }
 
-        [Test()]
+        [Test]
         public void GeographyFromBinaryTest()
         {
             Assert.Ignore("not implemented");
         }
 
-        [Test()]
+        [Test]
         public void GeographyFromBinaryTest1()
         {
             Assert.Ignore("not implemented");
         }
 
-        [Test()]
+        [Test]
         public void GeographyFromGmlTest()
         {
             Assert.Ignore("not implemented");
         }
 
-        [Test()]
+        [Test]
         public void GeographyFromGmlTest1()
         {
             Assert.Ignore("not implemented");
         }
 
-        [Test()]
+        [Test]
         public void GeographyFromProviderValueTest()
         {
             Assert.Ignore("not implemented");
         }
 
-        [Test()]
+        [Test]
         public void GeographyFromTextTest()
         {
             Assert.Ignore("not implemented");
         }
 
-        [Test()]
+        [Test]
         public void GeographyFromTextTest1()
         {
             Assert.Ignore("not implemented");
         }
 
-        [Test()]
+        [Test]
         public void GeographyLineFromBinaryTest()
         {
             Assert.Ignore("not implemented");
         }
 
-        [Test()]
+        [Test]
         public void GeographyLineFromTextTest()
         {
             Assert.Ignore("not implemented");
         }
 
-        [Test()]
+        [Test]
         public void GeographyMultiLineFromBinaryTest()
         {
             Assert.Ignore("not implemented");
         }
 
-        [Test()]
+        [Test]
         public void GeographyMultiLineFromTextTest()
         {
             Assert.Ignore("not implemented");
         }
 
-        [Test()]
+        [Test]
         public void GeographyMultiPointFromBinaryTest()
         {
             Assert.Ignore("not implemented");
         }
 
-        [Test()]
+        [Test]
         public void GeographyMultiPointFromTextTest()
         {
             Assert.Ignore("not implemented");
         }
 
-        [Test()]
+        [Test]
         public void GeographyMultiPolygonFromBinaryTest()
         {
             Assert.Ignore("not implemented");
         }
 
-        [Test()]
+        [Test]
         public void GeographyMultiPolygonFromTextTest()
         {
             Assert.Ignore("not implemented");
         }
 
-        [Test()]
+        [Test]
         public void GeographyPointFromBinaryTest()
         {
             Assert.Ignore("not implemented");
         }
 
-        [Test()]
+        [Test]
         public void GeographyPointFromTextTest()
         {
             Assert.Ignore("not implemented");
         }
 
-        [Test()]
+        [Test]
         public void GeographyPolygonFromBinaryTest()
         {
             Assert.Ignore("not implemented");
         }
 
-        [Test()]
+        [Test]
         public void GeographyPolygonFromTextTest()
         {
             Assert.Ignore("not implemented");
         }
 
-        [Test()]
+        [Test]
         public void GeometryCollectionFromBinaryTest()
         {
             var svcs = new PostgisServices();
@@ -431,7 +432,7 @@ namespace Npgsql.Tests.Spatial
             }
         }
 
-        [Test()]
+        [Test]
         public void GeometryCollectionFromTextTest()
         {
             var svcs = new PostgisServices();
@@ -448,7 +449,7 @@ namespace Npgsql.Tests.Spatial
             }
         }
 
-        [Test()]
+        [Test]
         public void GeometryFromBinaryTest()
         {
             var svcs = new PostgisServices();
@@ -464,7 +465,7 @@ namespace Npgsql.Tests.Spatial
             }
         }
 
-        [Test()]
+        [Test]
         public void GeometryFromBinaryTestGeog()
         {
             var svcs = new PostgisServices();
@@ -472,7 +473,7 @@ namespace Npgsql.Tests.Spatial
             Assert.Ignore("not implemented");
         }
 
-        [Test()]
+        [Test]
         public void GeometryFromGmlTest()
         {
             var svcs = new PostgisServices();
@@ -488,13 +489,13 @@ namespace Npgsql.Tests.Spatial
             }
         }
 
-        [Test()]
+        [Test]
         public void GeometryFromGmlTestGeog()
         {
             Assert.Ignore("not implemented");
         }
 
-        [Test()]
+        [Test]
         public void GeometryFromProviderValueTest()
         {
             var svcs = new PostgisServices();
@@ -509,7 +510,7 @@ namespace Npgsql.Tests.Spatial
             }
         }
 
-        [Test()]
+        [Test]
         public void GeometryFromTextTest()
         {
             var svcs = new PostgisServices();
@@ -525,13 +526,13 @@ namespace Npgsql.Tests.Spatial
             }
         }
 
-        [Test()]
+        [Test]
         public void GeometryFromTextTestGeog()
         {
             Assert.Ignore("not implemented");
         }
 
-        [Test()]
+        [Test]
         public void GeometryLineFromBinaryTest()
         {
             var svcs = new PostgisServices();
@@ -549,7 +550,7 @@ namespace Npgsql.Tests.Spatial
             }
         }
 
-        [Test()]
+        [Test]
         public void GeometryLineFromTextTest()
         {
             var svcs = new PostgisServices();
@@ -567,7 +568,7 @@ namespace Npgsql.Tests.Spatial
             }
         }
 
-        [Test()]
+        [Test]
         public void GeometryMultiLineFromBinaryTest()
         {
             var svcs = new PostgisServices();
@@ -590,7 +591,7 @@ namespace Npgsql.Tests.Spatial
             }
         }
 
-        [Test()]
+        [Test]
         public void GeometryMultiLineFromTextTest()
         {
             var svcs = new PostgisServices();
@@ -613,7 +614,7 @@ namespace Npgsql.Tests.Spatial
             }
         }
 
-        [Test()]
+        [Test]
         public void GeometryMultiPointFromBinaryTest()
         {
             var svcs = new PostgisServices();
@@ -635,7 +636,7 @@ namespace Npgsql.Tests.Spatial
             }
         }
 
-        [Test()]
+        [Test]
         public void GeometryMultiPointFromTextTest()
         {
             var svcs = new PostgisServices();
@@ -657,7 +658,7 @@ namespace Npgsql.Tests.Spatial
             }
         }
 
-        [Test()]
+        [Test]
         public void GeometryMultiPolygonFromBinaryTest()
         {
             var svcs = new PostgisServices();
@@ -687,7 +688,7 @@ namespace Npgsql.Tests.Spatial
             }
         }
 
-        [Test()]
+        [Test]
         public void GeometryMultiPolygonFromTextTest()
         {
             var svcs = new PostgisServices();
@@ -717,7 +718,7 @@ namespace Npgsql.Tests.Spatial
             }
         }
 
-        [Test()]
+        [Test]
         public void GeometryPointFromBinaryTest()
         {
             var svcs = new PostgisServices();
@@ -733,7 +734,7 @@ namespace Npgsql.Tests.Spatial
             }
         }
 
-        [Test()]
+        [Test]
         public void GeometryPointFromTextTest()
         {
             var svcs = new PostgisServices();
@@ -749,7 +750,7 @@ namespace Npgsql.Tests.Spatial
             }
         }
 
-        [Test()]
+        [Test]
         public void GeometryPolygonFromBinaryTest()
         {
             var svcs = new PostgisServices();
@@ -775,7 +776,7 @@ namespace Npgsql.Tests.Spatial
             }
         }
 
-        [Test()]
+        [Test]
         public void GeometryPolygonFromTextTest()
         {
             var svcs = new PostgisServices();
@@ -801,7 +802,7 @@ namespace Npgsql.Tests.Spatial
             }
         }
 
-        [Test()]
+        [Test]
         public void GetAreaTest()
         {
             var svcs = new PostgisServices();
@@ -827,13 +828,13 @@ namespace Npgsql.Tests.Spatial
             }
         }
 
-        [Test()]
+        [Test]
         public void GetAreaTestGeom()
         {
             Assert.Ignore("not implemented");
         }
 
-        [Test()]
+        [Test]
         public void GetBoundaryTest()
         {
             var svcs = new PostgisServices();
@@ -859,7 +860,7 @@ namespace Npgsql.Tests.Spatial
             }
         }
 
-        [Test()]
+        [Test]
         public void GetCentroidTest()
         {
             var svcs = new PostgisServices();
@@ -885,7 +886,7 @@ namespace Npgsql.Tests.Spatial
             }
         }
 
-        [Test()]
+        [Test]
         public void GetConvexHullTest()
         {
             var svcs = new PostgisServices();
@@ -911,7 +912,7 @@ namespace Npgsql.Tests.Spatial
             }
         }
 
-        [Test()]
+        [Test]
         public void GetCoordinateSystemIdTest()
         {
             var svcs = new PostgisServices();
@@ -938,13 +939,13 @@ namespace Npgsql.Tests.Spatial
             }
         }
 
-        [Test()]
+        [Test]
         public void GetCoordinateSystemIdTestGeog()
         {
             Assert.Ignore("not implemented");
         }
 
-        [Test()]
+        [Test]
         public void GetDimensionTest()
         {
             var svcs = new PostgisServices();
@@ -970,13 +971,13 @@ namespace Npgsql.Tests.Spatial
             }
         }
 
-        [Test()]
+        [Test]
         public void GetDimensionTestGeog()
         {
             Assert.Ignore("not implemented");
         }
 
-        [Test()]
+        [Test]
         public void GetElementCountTest()
         {
             var svcs = new PostgisServices();
@@ -1006,25 +1007,25 @@ namespace Npgsql.Tests.Spatial
             }
         }
 
-        [Test()]
+        [Test]
         public void GetElementCountTestGeog()
         {
             Assert.Ignore("not implemented");
         }
 
-        [Test()]
+        [Test]
         public void GetElevationTest()
         {
             Assert.Ignore("not implemented");
         }
 
-        [Test()]
+        [Test]
         public void GetElevationTest1()
         {
             Assert.Ignore("not implemented");
         }
 
-        [Test()]
+        [Test]
         public void GetEndPointTest()
         {
             var svcs = new PostgisServices();
@@ -1050,13 +1051,13 @@ namespace Npgsql.Tests.Spatial
             }
         }
 
-        [Test()]
+        [Test]
         public void GetEndPointTestGeog()
         {
             Assert.Ignore("not implemented");
         }
 
-        [Test()]
+        [Test]
         public void GetEnvelopeTest()
         {
             var svcs = new PostgisServices();
@@ -1082,7 +1083,7 @@ namespace Npgsql.Tests.Spatial
             }
         }
 
-        [Test()]
+        [Test]
         public void GetExteriorRingTest()
         {
             var svcs = new PostgisServices();
@@ -1108,7 +1109,7 @@ namespace Npgsql.Tests.Spatial
             }
         }
 
-        [Test()]
+        [Test]
         public void GetInteriorRingCountTest()
         {
             var svcs = new PostgisServices();
@@ -1134,7 +1135,7 @@ namespace Npgsql.Tests.Spatial
             }
         }
 
-        [Test()]
+        [Test]
         public void GetIsClosedTest()
         {
             var svcs = new PostgisServices();
@@ -1160,13 +1161,13 @@ namespace Npgsql.Tests.Spatial
             }
         }
 
-        [Test()]
+        [Test]
         public void GetIsClosedTestGeog()
         {
             Assert.Ignore("not implemented");
         }
 
-        [Test()]
+        [Test]
         public void GetIsEmptyTest()
         {
             var svcs = new PostgisServices();
@@ -1192,13 +1193,13 @@ namespace Npgsql.Tests.Spatial
             }
         }
 
-        [Test()]
+        [Test]
         public void GetIsEmptyTestGeog()
         {
             Assert.Ignore("not implemented");
         }
 
-        [Test()]
+        [Test]
         public void GetIsRingTest()
         {
             var svcs = new PostgisServices();
@@ -1222,7 +1223,7 @@ namespace Npgsql.Tests.Spatial
             }
         }
 
-        [Test()]
+        [Test]
         public void GetIsSimpleTest()
         {
             var svcs = new PostgisServices();
@@ -1248,7 +1249,7 @@ namespace Npgsql.Tests.Spatial
             }
         }
 
-        [Test()]
+        [Test]
         public void GetIsValidTest()
         {
             var svcs = new PostgisServices();
@@ -1274,13 +1275,13 @@ namespace Npgsql.Tests.Spatial
             }
         }
 
-        [Test()]
+        [Test]
         public void GetLatitudeTest()
         {
             Assert.Ignore("not implemented");
         }
 
-        [Test()]
+        [Test]
         public void GetLengthTest()
         {
             var svcs = new PostgisServices();
@@ -1306,31 +1307,31 @@ namespace Npgsql.Tests.Spatial
             }
         }
 
-        [Test()]
+        [Test]
         public void GetLengthTestGeog()
         {
             Assert.Ignore("not implemented");
         }
 
-        [Test()]
+        [Test]
         public void GetLongitudeTest()
         {
             Assert.Ignore("not implemented");
         }
 
-        [Test()]
+        [Test]
         public void GetMeasureTest()
         {
             Assert.Ignore("not implemented");
         }
 
-        [Test()]
+        [Test]
         public void GetMeasureTestGeog()
         {
             Assert.Ignore("not implemented");
         }
 
-        [Test()]
+        [Test]
         public void GetPointCountTest()
         {
             var svcs = new PostgisServices();
@@ -1356,13 +1357,13 @@ namespace Npgsql.Tests.Spatial
             }
         }
 
-        [Test()]
+        [Test]
         public void GetPointCountTestGeog()
         {
             Assert.Ignore("not implemented");
         }
 
-        [Test()]
+        [Test]
         public void GetPointOnSurfaceTest()
         {
             var svcs = new PostgisServices();
@@ -1388,7 +1389,7 @@ namespace Npgsql.Tests.Spatial
             }
         }
 
-        [Test()]
+        [Test]
         public void GetSpatialTypeNameTest()
         {
             var svcs = new PostgisServices();
@@ -1414,13 +1415,13 @@ namespace Npgsql.Tests.Spatial
             }
         }
 
-        [Test()]
+        [Test]
         public void GetSpatialTypeNameTestGeog()
         {
             Assert.Ignore("not implemented");
         }
 
-        [Test()]
+        [Test]
         public void GetStartPointTest()
         {
             var svcs = new PostgisServices();
@@ -1446,13 +1447,13 @@ namespace Npgsql.Tests.Spatial
             }
         }
 
-        [Test()]
+        [Test]
         public void GetStartPointTestGeog()
         {
             Assert.Ignore("not implemented");
         }
 
-        [Test()]
+        [Test]
         public void GetXCoordinateTest()
         {
             var svcs = new PostgisServices();
@@ -1469,7 +1470,7 @@ namespace Npgsql.Tests.Spatial
             }
         }
 
-        [Test()]
+        [Test]
         public void GetYCoordinateTest()
         {
             var svcs = new PostgisServices();
@@ -1486,7 +1487,7 @@ namespace Npgsql.Tests.Spatial
             }
         }
 
-        [Test()]
+        [Test]
         public void InteriorRingAtTest()
         {
             var svcs = new PostgisServices();
@@ -1519,7 +1520,7 @@ namespace Npgsql.Tests.Spatial
             }
         }
 
-        [Test()]
+        [Test]
         public void IntersectionTest()
         {
             var svcs = new PostgisServices();
@@ -1545,13 +1546,13 @@ namespace Npgsql.Tests.Spatial
             }
         }
 
-        [Test()]
+        [Test]
         public void IntersectionTestGeog()
         {
             Assert.Ignore("not implemented");
         }
 
-        [Test()]
+        [Test]
         public void IntersectsTest()
         {
             var svcs = new PostgisServices();
@@ -1577,13 +1578,13 @@ namespace Npgsql.Tests.Spatial
             }
         }
 
-        [Test()]
+        [Test]
         public void IntersectsTestGeog()
         {
             Assert.Ignore("not implemented");
         }
 
-        [Test()]
+        [Test]
         public void OverlapsTest()
         {
             var svcs = new PostgisServices();
@@ -1609,19 +1610,19 @@ namespace Npgsql.Tests.Spatial
             }
         }
 
-        [Test()]
+        [Test]
         public void PointAtTest()
         {
             Assert.Ignore("not implemented");
         }
 
-        [Test()]
+        [Test]
         public void PointAtTestGeog()
         {
             Assert.Ignore("not implemented");
         }
 
-        [Test()]
+        [Test]
         public void RelateTest()
         {
             var svcs = new PostgisServices();
@@ -1647,7 +1648,7 @@ namespace Npgsql.Tests.Spatial
             }
         }
 
-        [Test()]
+        [Test]
         public void SpatialEqualsTest()
         {
             var svcs = new PostgisServices();
@@ -1673,13 +1674,13 @@ namespace Npgsql.Tests.Spatial
             }
         }
 
-        [Test()]
+        [Test]
         public void SpatialEqualsTestGeog()
         {
             Assert.Ignore("not implemented");
         }
 
-        [Test()]
+        [Test]
         public void SymmetricDifferenceTest()
         {
             var svcs = new PostgisServices();
@@ -1705,13 +1706,13 @@ namespace Npgsql.Tests.Spatial
             }
         }
 
-        [Test()]
+        [Test]
         public void SymmetricDifferenceTestGeog()
         {
             Assert.Ignore("not implemented");
         }
 
-        [Test()]
+        [Test]
         public void TouchesTest()
         {
             var svcs = new PostgisServices();
@@ -1737,7 +1738,7 @@ namespace Npgsql.Tests.Spatial
             }
         }
 
-        [Test()]
+        [Test]
         public void UnionTest()
         {
             var svcs = new PostgisServices();
@@ -1763,13 +1764,13 @@ namespace Npgsql.Tests.Spatial
             }
         }
 
-        [Test()]
+        [Test]
         public void UnionTestGeog()
         {
             Assert.Ignore("not implemented");
         }
 
-        [Test()]
+        [Test]
         public void WithinTest()
         {
             var svcs = new PostgisServices();
@@ -1795,7 +1796,7 @@ namespace Npgsql.Tests.Spatial
             }
         }
 
-        [Test()]
+        [Test]
         public void InstanceTest()
         {
             var svcs = new PostgisServices();

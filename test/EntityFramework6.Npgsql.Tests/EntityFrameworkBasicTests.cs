@@ -33,7 +33,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity.Core.Metadata.Edm;
 using System.Data.Entity.Core.Objects;
 using System.Data.Entity.Infrastructure;
-using Npgsql.Tests;
 using NpgsqlTypes;
 
 namespace EntityFramework6.Npgsql.Tests
@@ -45,7 +44,7 @@ namespace EntityFramework6.Npgsql.Tests
         {
             var varbitVal = "10011";
 
-            using (var context = new BloggingContext(ConnectionStringEF))
+            using (var context = new BloggingContext(ConnectionString))
             {
                 var blog = new Blog()
                 {
@@ -65,7 +64,7 @@ namespace EntityFramework6.Npgsql.Tests
                 context.SaveChanges();
             }
 
-            using (var context = new BloggingContext(ConnectionStringEF))
+            using (var context = new BloggingContext(ConnectionString))
             {
                 var posts = from p in context.Posts
                             select p;
@@ -86,7 +85,7 @@ namespace EntityFramework6.Npgsql.Tests
         [Test]
         public void SelectWithWhere()
         {
-            using (var context = new BloggingContext(ConnectionStringEF))
+            using (var context = new BloggingContext(ConnectionString))
             {
                 var blog = new Blog()
                 {
@@ -104,7 +103,7 @@ namespace EntityFramework6.Npgsql.Tests
                 context.SaveChanges();
             }
 
-            using (var context = new BloggingContext(ConnectionStringEF))
+            using (var context = new BloggingContext(ConnectionString))
             {
                 var posts = from p in context.Posts
                             where p.Rating < 3
@@ -121,7 +120,7 @@ namespace EntityFramework6.Npgsql.Tests
         public void SelectWithWhere_Ef_TruncateTime()
         {
             DateTime createdOnDate = new DateTime(2014, 05, 08);
-            using (var context = new BloggingContext(ConnectionStringEF))
+            using (var context = new BloggingContext(ConnectionString))
             {
                 var blog = new Blog()
                 {
@@ -141,7 +140,7 @@ namespace EntityFramework6.Npgsql.Tests
                 context.SaveChanges();
             }
 
-            using (var context = new BloggingContext(ConnectionStringEF))
+            using (var context = new BloggingContext(ConnectionString))
             {
                 var posts = from p in context.Posts
                             let datePosted = DbFunctions.TruncateTime(p.CreationDate)
@@ -159,7 +158,7 @@ namespace EntityFramework6.Npgsql.Tests
 		public void SelectWithLike_SpecialCharacters()
 		{
 			DateTime createdOnDate = new DateTime(2014, 05, 08);
-			using (var context = new BloggingContext(ConnectionStringEF))
+			using (var context = new BloggingContext(ConnectionString))
 			{
 				var blog = new Blog()
 				{
@@ -192,7 +191,7 @@ namespace EntityFramework6.Npgsql.Tests
 				context.SaveChanges();
 			}
 
-			using (var context = new BloggingContext(ConnectionStringEF))
+			using (var context = new BloggingContext(ConnectionString))
 			{
 				var posts1 = from p in context.Posts
 				             where p.Content.Contains("_")
@@ -214,7 +213,7 @@ namespace EntityFramework6.Npgsql.Tests
         [Test]
         public void OrderBy()
         {
-            using (var context = new BloggingContext(ConnectionStringEF))
+            using (var context = new BloggingContext(ConnectionString))
             {
                 Random random = new Random();
                 var blog = new Blog()
@@ -234,7 +233,7 @@ namespace EntityFramework6.Npgsql.Tests
                 context.SaveChanges();
             }
 
-            using (var context = new BloggingContext(ConnectionStringEF))
+            using (var context = new BloggingContext(ConnectionString))
             {
                 var posts = from p in context.Posts
                             orderby p.Rating
@@ -252,7 +251,7 @@ namespace EntityFramework6.Npgsql.Tests
         [Test]
         public void OrderByThenBy()
         {
-            using (var context = new BloggingContext(ConnectionStringEF))
+            using (var context = new BloggingContext(ConnectionString))
             {
                 Random random = new Random();
                 var blog = new Blog()
@@ -272,7 +271,7 @@ namespace EntityFramework6.Npgsql.Tests
                 context.SaveChanges();
             }
 
-            using (var context = new BloggingContext(ConnectionStringEF))
+            using (var context = new BloggingContext(ConnectionString))
             {
                 var posts = context.Posts.AsQueryable<Post>().OrderBy((p) => p.Title).ThenByDescending((p) => p.Rating);
                 Assert.AreEqual(10, posts.Count());
@@ -287,7 +286,7 @@ namespace EntityFramework6.Npgsql.Tests
         [Test]
         public void TestComputedValue()
         {
-            using (var context = new BloggingContext(ConnectionStringEF))
+            using (var context = new BloggingContext(ConnectionString))
             {
                 var blog = new Blog()
                 {
@@ -306,7 +305,7 @@ namespace EntityFramework6.Npgsql.Tests
         [Test]
         public void Operators()
         {
-            using (var context = new BloggingContext(ConnectionStringEF))
+            using (var context = new BloggingContext(ConnectionString))
             {
                 context.Database.Log = Console.Out.WriteLine;
 
@@ -331,7 +330,7 @@ namespace EntityFramework6.Npgsql.Tests
         [Test]
         public void DataTypes()
         {
-            using (var context = new BloggingContext(ConnectionStringEF))
+            using (var context = new BloggingContext(ConnectionString))
             {
                 context.Database.Log = Console.Out.WriteLine;
 
@@ -400,7 +399,7 @@ namespace EntityFramework6.Npgsql.Tests
         [Test]
         public void SByteTest()
         {
-            using (var context = new BloggingContext(ConnectionStringEF))
+            using (var context = new BloggingContext(ConnectionString))
             {
                 IQueryable<int> oneRow = context.Posts.Where(p => false).Select(p => 1).Concat(new int[] { 1 });
 
@@ -413,7 +412,7 @@ namespace EntityFramework6.Npgsql.Tests
         [Test]
         public void DateFunctions()
         {
-            using (var context = new BloggingContext(ConnectionStringEF))
+            using (var context = new BloggingContext(ConnectionString))
             {
                 IQueryable<int> oneRow = context.Posts.Where(p => false).Select(p => 1).Concat(new int[] { 1 });
 
@@ -468,7 +467,7 @@ namespace EntityFramework6.Npgsql.Tests
         [Test]
         public void TestComplicatedQueries()
         {
-            using (var context = new BloggingContext(ConnectionStringEF))
+            using (var context = new BloggingContext(ConnectionString))
             {
                 context.Database.Log = Console.Out.WriteLine;
 
@@ -529,7 +528,7 @@ namespace EntityFramework6.Npgsql.Tests
         [MonoIgnore("Probably bug in mono. See https://github.com/npgsql/Npgsql/issues/289.")]
         public void TestComplicatedQueriesMonoFails()
         {
-            using (var context = new BloggingContext(ConnectionStringEF))
+            using (var context = new BloggingContext(ConnectionString))
             {
                 context.Database.Log = Console.Out.WriteLine;
 
@@ -552,9 +551,9 @@ namespace EntityFramework6.Npgsql.Tests
         [Test]
         public void TestComplicatedQueriesWithApply()
         {
-            using (var conn = OpenConnection(ConnectionStringEF))
+            using (var conn = OpenConnection(ConnectionString))
                 TestUtil.MinimumPgVersion(conn, "9.3.0");
-            using (var context = new BloggingContext(ConnectionStringEF))
+            using (var context = new BloggingContext(ConnectionString))
             {
                 context.Database.Log = Console.Out.WriteLine;
 
@@ -579,7 +578,7 @@ namespace EntityFramework6.Npgsql.Tests
         [Test]
         public void TestScalarValuedStoredFunctions()
         {
-            using (var context = new BloggingContext(ConnectionStringEF))
+            using (var context = new BloggingContext(ConnectionString))
             {
                 context.Database.Log = Console.Out.WriteLine;
 
@@ -626,7 +625,7 @@ namespace EntityFramework6.Npgsql.Tests
 		[Test]
         public void TestScalarValuedStoredFunctions_with_null_StoreFunctionName()
         {
-            using (var context = new BloggingContext(ConnectionStringEF))
+            using (var context = new BloggingContext(ConnectionString))
             {
                 context.Database.Log = Console.Out.WriteLine;
 

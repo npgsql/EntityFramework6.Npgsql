@@ -29,15 +29,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Common;
 using System.Data.Entity;
 using System.Data.Entity.Core.Metadata.Edm;
-using System.Data.Entity.Migrations;
-using System.Data.Entity.Migrations.History;
 using System.Data.Entity.Migrations.Model;
-using System.Data.Entity.Spatial;
-using System.Globalization;
 using System.Linq;
-using System.Text;
-using System.Threading;
-using Npgsql.Tests;
 
 namespace EntityFramework6.Npgsql.Tests
 {
@@ -71,7 +64,7 @@ namespace EntityFramework6.Npgsql.Tests
         [Test]
         public void CreateBloggingContext()
         {
-            using (var db = new BloggingContext(new NpgsqlConnection(ConnectionStringEF)))
+            using (var db = new BloggingContext(new NpgsqlConnection(ConnectionString)))
             {
                 if (!(db.Database.Connection is NpgsqlConnection))
                 {
@@ -227,7 +220,7 @@ namespace EntityFramework6.Npgsql.Tests
         [Test]
         public void DatabaseExistsCreateDelete()
         {
-            using (var db = new BloggingContext(new NpgsqlConnection(ConnectionStringEF)))
+            using (var db = new BloggingContext(new NpgsqlConnection(ConnectionString)))
             {
                 if (db.Database.Exists())
                 {
@@ -799,7 +792,7 @@ namespace EntityFramework6.Npgsql.Tests
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
-            using (var conn = OpenConnection(ConnectionStringEF))
+            using (var conn = OpenConnection(ConnectionString))
                 _backendVersion = conn.PostgreSqlVersion;
         }
 
