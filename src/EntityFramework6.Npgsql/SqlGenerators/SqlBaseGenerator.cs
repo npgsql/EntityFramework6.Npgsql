@@ -1,7 +1,7 @@
 ﻿#region License
 // The PostgreSQL License
 //
-// Copyright (C) 2015 The Npgsql Development Team
+// Copyright (C) 2016 The Npgsql Development Team
 //
 // Permission to use, copy, modify, and distribute this software and its
 // documentation for any purpose, without fee, and without a written
@@ -1141,7 +1141,7 @@ namespace Npgsql.SqlGenerators
                 if (BinaryOperatorFunctionNames.TryGetValue(functionName, out binaryOperator))
                 {
                     if (args.Count != 2)
-                        throw new ArgumentException(string.Format("Invalid number of {0} arguments. Expected 2.", function.Name), "args");
+                        throw new ArgumentException($"Invalid number of {functionName} arguments. Expected 2.", nameof(args));
 
                     return OperatorExpression.Build(
                         binaryOperator,
@@ -1153,7 +1153,7 @@ namespace Npgsql.SqlGenerators
                 if (functionName == "operator_tsquery_negate")
                 {
                     if (args.Count != 1)
-                        throw new ArgumentException("Invalid number of operator_tsquery_not arguments. Expected 1.", "args");
+                        throw new ArgumentException("Invalid number of operator_tsquery_not arguments. Expected 1.", nameof(args));
 
                     return OperatorExpression.Build(Operator.QueryNegate, _useNewPrecedences, args[0].Accept(this));
                 }
@@ -1184,7 +1184,7 @@ namespace Npgsql.SqlGenerators
                 else if (functionName == "setweight")
                 {
                     if (args.Count != 2)
-                        throw new ArgumentException("Invalid number of setweight arguments. Expected 2.", "args");
+                        throw new ArgumentException("Invalid number of setweight arguments. Expected 2.", nameof(args));
 
                     var weightLabelExpression = args[1] as DbConstantExpression;
                     if (weightLabelExpression == null)
@@ -1199,14 +1199,14 @@ namespace Npgsql.SqlGenerators
                 else if (functionName == "as_tsvector")
                 {
                     if (args.Count != 1)
-                        throw new ArgumentException("Invalid number of arguments. Expected 1.", "args");
+                        throw new ArgumentException("Invalid number of arguments. Expected 1.", nameof(args));
 
                     return new CastExpression(args[0].Accept(this), "tsvector");
                 }
                 else if (functionName == "as_tsquery")
                 {
                     if (args.Count != 1)
-                        throw new ArgumentException("Invalid number of arguments. Expected 1.", "args");
+                        throw new ArgumentException("Invalid number of arguments. Expected 1.", nameof(args));
 
                     return new CastExpression(args[0].Accept(this), "tsquery");
                 }

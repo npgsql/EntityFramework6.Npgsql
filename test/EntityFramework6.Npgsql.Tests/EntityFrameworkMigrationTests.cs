@@ -1,9 +1,7 @@
-﻿// EntityFrameworkMigrationTests.cs
+﻿#region License
+// The PostgreSQL License
 //
-// Author:
-//    David Karlaš (david.karlas@gmail.com)
-//
-//    Copyright (C) 2014 David Karlaš
+// Copyright (C) 2016 The Npgsql Development Team
 //
 // Permission to use, copy, modify, and distribute this software and its
 // documentation for any purpose, without fee, and without a written
@@ -21,6 +19,7 @@
 // AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED HEREUNDER IS
 // ON AN "AS IS" BASIS, AND THE NPGSQL DEVELOPMENT TEAM HAS NO OBLIGATIONS
 // TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
+#endregion
 
 using Npgsql;
 using NUnit.Framework;
@@ -30,18 +29,11 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Common;
 using System.Data.Entity;
 using System.Data.Entity.Core.Metadata.Edm;
-using System.Data.Entity.Migrations;
-using System.Data.Entity.Migrations.History;
 using System.Data.Entity.Migrations.Model;
-using System.Data.Entity.Spatial;
-using System.Globalization;
 using System.Linq;
-using System.Text;
-using System.Threading;
 
 namespace EntityFramework6.Npgsql.Tests
 {
-    [TestFixture]
     public class EntityFrameworkMigrationTests : TestBase
     {
         #region Helper method
@@ -487,6 +479,23 @@ namespace EntityFramework6.Npgsql.Tests
         }
 
         [Test]
+        public void RenameIndexOperation()
+        {
+            var operations = new List<MigrationOperation>();
+            operations.Add(new RenameIndexOperation("someSchema.someTable", "someOldIndexName", "someNewIndexName"));
+            var statements = new NpgsqlMigrationSqlGenerator().Generate(operations, _backendVersion.ToString());
+            Assert.AreEqual(1, statements.Count());
+            if (_backendVersion.Major > 9 || (_backendVersion.Major == 9 && _backendVersion.Minor >= 2))
+            {
+                Assert.AreEqual("ALTER INDEX IF EXISTS someSchema.\"someOldIndexName\" RENAME TO \"someNewIndexName\"", statements.ElementAt(0).Sql);
+            }
+            else
+            {
+                Assert.AreEqual("ALTER INDEX someSchema.\"someOldIndexName\" RENAME TO \"someNewIndexName\"", statements.ElementAt(0).Sql);    
+            }
+        }
+
+        [Test]
         public void MoveTableOperation()
         {
             var operations = new List<MigrationOperation>();
@@ -778,7 +787,6 @@ namespace EntityFramework6.Npgsql.Tests
             Assert.AreEqual("ALTER TABLE \"someTable\" ADD \"someSingleColumn\" float4 DEFAULT 12.4", statments.ElementAt(13).Sql);
             Assert.AreEqual("ALTER TABLE \"someTable\" ADD \"someStringColumn\" text DEFAULT 'Hello EF'", statments.ElementAt(14).Sql);
             Assert.AreEqual("ALTER TABLE \"someTable\" ADD \"someColumn\" interval DEFAULT '1 day 02:03:04.005007'", statments.ElementAt(15).Sql);
-
         }
 
         [OneTimeSetUp]

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" uuid="09eb5dd5-0a39-4df3-b923-f38bf144d668" xsi:noNamespaceSchemaLocation="http://www.jetbrains.com/teamcity/schemas/9.0/project-config.xsd">
+  <name>EntityFramework6.Npgsql</name>
+  <description>Entity Framework 6/5 for PostgreSQL</description>
+  <parameters>
+    <param name="env.NPGSQL_TEST_DB" value="Server=localhost;Port=5495;User ID=npgsql_tests;Password=npgsql_tests;Database=npgsql_tests_ef6" />
+  </parameters>
+  <cleanup />
+</project>
+

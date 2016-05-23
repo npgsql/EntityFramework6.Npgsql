@@ -1,7 +1,7 @@
 ﻿#region License
 // The PostgreSQL License
 //
-// Copyright (C) 2015 The Npgsql Development Team
+// Copyright (C) 2016 The Npgsql Development Team
 //
 // Permission to use, copy, modify, and distribute this software and its
 // documentation for any purpose, without fee, and without a written
@@ -24,7 +24,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Data.Common;
 #if ENTITIES6
 using System.Data.Entity;
 using System.Data.Entity.Core.Common;
@@ -33,6 +32,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 #else
+using System.Data.Common;
 using System.Data.Metadata.Edm;
 #endif
 using System.Xml;

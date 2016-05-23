@@ -41,9 +41,8 @@ namespace EntityFramework6.Npgsql.Tests
     public abstract class EntityFrameworkTestBase : TestBase
     {
         [OneTimeSetUp]
-        public override void TestFixtureSetup()
+        public new void TestFixtureSetup()
         {
-            base.TestFixtureSetup();
             using (var context = new BloggingContext(ConnectionString))
             {
                 if (context.Database.Exists())
