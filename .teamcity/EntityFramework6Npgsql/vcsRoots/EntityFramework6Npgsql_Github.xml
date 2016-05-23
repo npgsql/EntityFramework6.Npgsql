@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<vcs-root xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" uuid="bcf84c85-91ad-4ae5-b5cd-122f1b9145d8" type="jetbrains.git" xsi:noNamespaceSchemaLocation="http://www.jetbrains.com/teamcity/schemas/9.0/project-config.xsd">
+  <name>https://github.com/npgsql/EntityFramework6.Npgsql.git</name>
+  <param name="agentCleanFilesPolicy" value="ALL_UNTRACKED" />
+  <param name="agentCleanPolicy" value="ALWAYS" />
+  <param name="authMethod" value="PASSWORD" />
+  <param name="branch" value="dev" />
+  <param name="ignoreKnownHosts" value="true" />
+  <param name="secure:password" value="zxx9b1a45147d7e64e7775d03cbe80d301b" />
+  <param name="submoduleCheckout" value="CHECKOUT" />
+  <param name="teamcity:branchSpec"><![CDATA[+:refs/heads/(*)
+# The following activates building PRs
++:refs/pull/*/merge]]></param>
+  <param name="url" value="https://github.com/npgsql/EntityFramework6.Npgsql.git" />
+  <param name="useAlternates" value="true" />
+  <param name="username" value="npgsql-teamcity" />
+  <param name="usernameStyle" value="USERID" />
+</vcs-root>
+
