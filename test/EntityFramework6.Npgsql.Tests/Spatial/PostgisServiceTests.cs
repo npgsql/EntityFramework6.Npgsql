@@ -1821,5 +1821,26 @@ namespace EntityFramework6.Npgsql.Tests.Spatial
                 Assert.Fail();
             }
         }
+
+        [OneTimeSetUp]
+        public new void TestFixtureSetup()
+        {
+            using (var context = new BloggingContext(ConnectionString))
+            {
+                if (!context.Database.Exists())
+                    context.Database.Create();
+            }
+
+            using (var conn = new NpgsqlConnection(ConnectionString))
+            {
+                conn.Open();
+                using (var cmd = new NpgsqlCommand("CREATE EXTENSION IF NOT EXISTS postgis", conn))
+                    cmd.ExecuteNonQuery();
+
+                // Need to also have Npgsql reload the types from the database
+                conn.ReloadTypes();
+                NpgsqlConnection.ClearPool(conn);
+            }
+        }
     }
 }
