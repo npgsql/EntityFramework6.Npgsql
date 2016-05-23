@@ -107,6 +107,7 @@
           <param name="nuget.pack.properties" value="Configuration=Release" />
           <param name="nuget.pack.specFile"><![CDATA[src/EntityFramework6.Npgsql/EntityFramework6.Npgsql.nuspec
 src/EntityFramework5.Npgsql/EntityFramework5.Npgsql.nuspec]]></param>
+          <param name="nuget.pack.version" value="%build.number%" />
           <param name="nuget.path" value="?NuGet.CommandLine.DEFAULT" />
           <param name="nugetCustomPath" value="?NuGet.CommandLine.DEFAULT" />
           <param name="nugetPathSelector" value="?NuGet.CommandLine.DEFAULT" />
