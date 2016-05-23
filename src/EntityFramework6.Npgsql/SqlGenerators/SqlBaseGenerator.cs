@@ -33,6 +33,7 @@ using System.Data.Common.CommandTrees;
 using System.Data.Metadata.Edm;
 #endif
 using System.Linq;
+using Npgsql;
 using NpgsqlTypes;
 
 namespace Npgsql.SqlGenerators
