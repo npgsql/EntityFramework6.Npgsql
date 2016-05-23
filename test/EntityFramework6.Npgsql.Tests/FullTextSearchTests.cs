@@ -33,19 +33,16 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity.Core.Metadata.Edm;
 using System.Data.Entity.Core.Objects;
 using System.Data.Entity.Infrastructure;
-using Npgsql.Tests;
 using NpgsqlTypes;
 
 namespace EntityFramework6.Npgsql.Tests
 {
     class FullTextSearchTests : EntityFrameworkTestBase
     {
-        public FullTextSearchTests(string backendVersion) : base(backendVersion) { }
-
         [Test]
         public void ConversionToTsVector()
         {
-            using (var context = new BloggingContext(ConnectionStringEF))
+            using (var context = new BloggingContext(ConnectionString))
             {
                 context.Database.Log = Console.Out.WriteLine;
 
@@ -73,7 +70,7 @@ namespace EntityFramework6.Npgsql.Tests
         [Test]
         public void ConversionToTsQuery()
         {
-            using (var context = new BloggingContext(ConnectionStringEF))
+            using (var context = new BloggingContext(ConnectionString))
             {
                 context.Database.Log = Console.Out.WriteLine;
 
@@ -111,7 +108,7 @@ namespace EntityFramework6.Npgsql.Tests
         [Test]
         public void TsVectorConcat()
         {
-            using (var context = new BloggingContext(ConnectionStringEF))
+            using (var context = new BloggingContext(ConnectionString))
             {
                 context.Database.Log = Console.Out.WriteLine;
 
@@ -131,7 +128,7 @@ namespace EntityFramework6.Npgsql.Tests
         [Test]
         public void TsQueryAnd()
         {
-            using (var context = new BloggingContext(ConnectionStringEF))
+            using (var context = new BloggingContext(ConnectionString))
             {
                 context.Database.Log = Console.Out.WriteLine;
 
@@ -152,7 +149,7 @@ namespace EntityFramework6.Npgsql.Tests
         [Test]
         public void TsQueryOr()
         {
-            using (var context = new BloggingContext(ConnectionStringEF))
+            using (var context = new BloggingContext(ConnectionString))
             {
                 context.Database.Log = Console.Out.WriteLine;
 
@@ -181,7 +178,7 @@ namespace EntityFramework6.Npgsql.Tests
         [Test]
         public void TsQueryNot()
         {
-            using (var context = new BloggingContext(ConnectionStringEF))
+            using (var context = new BloggingContext(ConnectionString))
             {
                 context.Database.Log = Console.Out.WriteLine;
 
@@ -200,7 +197,7 @@ namespace EntityFramework6.Npgsql.Tests
         [Test]
         public void TsContains()
         {
-            using (var context = new BloggingContext(ConnectionStringEF))
+            using (var context = new BloggingContext(ConnectionString))
             {
                 context.Database.Log = Console.Out.WriteLine;
 
@@ -220,7 +217,7 @@ namespace EntityFramework6.Npgsql.Tests
         [Test]
         public void TsIsContained()
         {
-            using (var context = new BloggingContext(ConnectionStringEF))
+            using (var context = new BloggingContext(ConnectionString))
             {
                 context.Database.Log = Console.Out.WriteLine;
 
@@ -240,7 +237,7 @@ namespace EntityFramework6.Npgsql.Tests
         [Test]
         public void Match()
         {
-            using (var context = new BloggingContext(ConnectionStringEF))
+            using (var context = new BloggingContext(ConnectionString))
             {
                 context.Database.Log = Console.Out.WriteLine;
 
@@ -272,7 +269,7 @@ namespace EntityFramework6.Npgsql.Tests
         [Test]
         public void SetWeight()
         {
-            using (var context = new BloggingContext(ConnectionStringEF))
+            using (var context = new BloggingContext(ConnectionString))
             {
                 context.Database.Log = Console.Out.WriteLine;
 
@@ -319,7 +316,7 @@ namespace EntityFramework6.Npgsql.Tests
         [Test]
         public void Length()
         {
-            using (var context = new BloggingContext(ConnectionStringEF))
+            using (var context = new BloggingContext(ConnectionString))
             {
                 context.Database.Log = Console.Out.WriteLine;
 
@@ -342,7 +339,7 @@ namespace EntityFramework6.Npgsql.Tests
         [Test]
         public void NumNode()
         {
-            using (var context = new BloggingContext(ConnectionStringEF))
+            using (var context = new BloggingContext(ConnectionString))
             {
                 context.Database.Log = Console.Out.WriteLine;
 
@@ -365,7 +362,7 @@ namespace EntityFramework6.Npgsql.Tests
         [Test]
         public void Strip()
         {
-            using (var context = new BloggingContext(ConnectionStringEF))
+            using (var context = new BloggingContext(ConnectionString))
             {
                 context.Database.Log = Console.Out.WriteLine;
 
@@ -390,7 +387,7 @@ namespace EntityFramework6.Npgsql.Tests
         [Test]
         public void QueryTree()
         {
-            using (var context = new BloggingContext(ConnectionStringEF))
+            using (var context = new BloggingContext(ConnectionString))
             {
                 context.Database.Log = Console.Out.WriteLine;
 
@@ -415,7 +412,7 @@ namespace EntityFramework6.Npgsql.Tests
         [Test]
         public void TsHeadline()
         {
-            using (var context = new BloggingContext(ConnectionStringEF))
+            using (var context = new BloggingContext(ConnectionString))
             {
                 context.Database.Log = Console.Out.WriteLine;
 
@@ -464,7 +461,7 @@ namespace EntityFramework6.Npgsql.Tests
         [Test]
         public void TsRank()
         {
-            using (var context = new BloggingContext(ConnectionStringEF))
+            using (var context = new BloggingContext(ConnectionString))
             {
                 context.Database.Log = Console.Out.WriteLine;
 
@@ -522,7 +519,7 @@ namespace EntityFramework6.Npgsql.Tests
         [Test]
         public void TsRankCd()
         {
-            using (var context = new BloggingContext(ConnectionStringEF))
+            using (var context = new BloggingContext(ConnectionString))
             {
                 context.Database.Log = Console.Out.WriteLine;
 
@@ -580,7 +577,7 @@ namespace EntityFramework6.Npgsql.Tests
         [Test]
         public void TsRewrite()
         {
-            using (var context = new BloggingContext(ConnectionStringEF))
+            using (var context = new BloggingContext(ConnectionString))
             {
                 context.Database.Log = Console.Out.WriteLine;
 

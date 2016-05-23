@@ -16,7 +16,7 @@
     <language>en-US</language>
     <tags>npgsql postgresql postgres data database entity framework ef orm</tags>
     <dependencies>
-      <dependency id="Npgsql" version="[$version$]" />
+      <dependency id="Npgsql" version="[3.0,3.1)" />
       <dependency id="EntityFramework" version="6.0.0" />
     </dependencies>
   </metadata>
