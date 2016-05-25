@@ -23,8 +23,8 @@
 
 using System;
 using System.Linq;
-using System.Collections.Generic;
 using System.Data.Common;
+using System.Diagnostics;
 #if ENTITIES6
 using System.Data.Entity.Core.Common.CommandTrees;
 using System.Data.Entity.Core.Metadata.Edm;
@@ -37,7 +37,7 @@ namespace Npgsql.SqlGenerators
 {
     internal class SqlSelectGenerator : SqlBaseGenerator
     {
-        private DbQueryCommandTree _commandTree;
+        readonly DbQueryCommandTree _commandTree;
 
         public SqlSelectGenerator(DbQueryCommandTree commandTree)
         {
@@ -74,18 +74,18 @@ namespace Npgsql.SqlGenerators
              * The new name is then propagated down to the root.
              */
 
-            string name = expression.Property.Name;
-            string from = (expression.Instance.ExpressionKind == DbExpressionKind.Property)
+            var name = expression.Property.Name;
+            var from = expression.Instance.ExpressionKind == DbExpressionKind.Property
                 ? ((DbPropertyExpression)expression.Instance).Property.Name
                 : ((DbVariableReferenceExpression)expression.Instance).VariableName;
 
-            PendingProjectsNode node = _refToNode[from];
+            var node = RefToNode[from];
             from = node.TopName;
             while (node != null)
             {
                 foreach (var item in node.Selects)
                 {
-                    if (_currentExpressions.Contains(item.Exp))
+                    if (CurrentExpressions.Contains(item.Exp))
                         continue;
 
                     var use = new StringPair(from, name);
@@ -99,9 +99,7 @@ namespace Npgsql.SqlGenerators
                         item.Exp.ProjectNewNames.Add(name);
                     }
                     else
-                    {
                         name = item.Exp.ColumnsToProject[use];
-                    }
                     from = item.AsName;
                 }
                 node = node.JoinParent;
@@ -109,20 +107,18 @@ namespace Npgsql.SqlGenerators
             return new ColumnReferenceExpression { Variable = from, Name = name };
         }
 
+        // must provide a NULL of the correct type
+        // this is necessary for certain types of union queries.
         public override VisitedExpression Visit(DbNullExpression expression)
-        {
-            // must provide a NULL of the correct type
-            // this is necessary for certain types of union queries.
-            return new CastExpression(new LiteralExpression("NULL"), GetDbType(expression.ResultType.EdmType));
-        }
+            => new CastExpression(new LiteralExpression("NULL"), GetDbType(expression.ResultType.EdmType));
 
         public override void BuildCommand(DbCommand command)
         {
-            System.Diagnostics.Debug.Assert(command is NpgsqlCommand);
-            System.Diagnostics.Debug.Assert(_commandTree.Query is DbProjectExpression);
-            VisitedExpression ve = _commandTree.Query.Accept(this);
-            System.Diagnostics.Debug.Assert(ve is InputExpression);
-            InputExpression pe = (InputExpression)ve;
+            Debug.Assert(command is NpgsqlCommand);
+            Debug.Assert(_commandTree.Query is DbProjectExpression);
+            var ve = _commandTree.Query.Accept(this);
+            Debug.Assert(ve is InputExpression);
+            var pe = (InputExpression)ve;
             command.CommandText = pe.ToString();
 
             // We retrieve all strings as unknowns in text format in the case the data types aren't really texts
@@ -134,17 +130,18 @@ namespace Npgsql.SqlGenerators
                 return kind == PrimitiveTypeKind.SByte || kind == PrimitiveTypeKind.DateTimeOffset;
             }))
             {
-                ((NpgsqlCommand)command).ObjectResultTypes = pe.Projection.Arguments.Select(a => {
+                ((NpgsqlCommand)command).ObjectResultTypes = pe.Projection.Arguments.Select(a =>
+                {
                     var kind = ((PrimitiveType)((ColumnExpression)a).ColumnType.EdmType).PrimitiveTypeKind;
-                    if (kind == PrimitiveTypeKind.SByte)
+                    switch (kind)
                     {
+                    case PrimitiveTypeKind.SByte:
                         return typeof(sbyte);
-                    }
-                    else if (kind == PrimitiveTypeKind.DateTimeOffset)
-                    {
+                    case PrimitiveTypeKind.DateTimeOffset:
                         return typeof(DateTimeOffset);
+                    default:
+                        return null;
                     }
-                    return null;
                 }).ToArray();
             }
         }

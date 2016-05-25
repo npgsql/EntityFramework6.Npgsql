@@ -21,10 +21,7 @@
 // TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
 #endregion
 
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Npgsql.SqlGenerators
 {
@@ -51,23 +48,18 @@ namespace Npgsql.SqlGenerators
     {
         public readonly List<NameAndInputExpression> Selects = new List<NameAndInputExpression>();
         public PendingProjectsNode JoinParent { get; set; }
-        public string TopName
-        {
-            get
-            {
-                return Selects[0].AsName;
-            }
-        }
+        public string TopName => Selects[0].AsName;
 
         public PendingProjectsNode(string asName, InputExpression exp)
         {
             Selects.Add(new NameAndInputExpression(asName, exp));
         }
+
         public void Add(string asName, InputExpression exp)
         {
             Selects.Add(new NameAndInputExpression(asName, exp));
         }
 
-        public NameAndInputExpression Last { get { return Selects[Selects.Count - 1]; } }
+        public NameAndInputExpression Last => Selects[Selects.Count - 1];
     }
 }

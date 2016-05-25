@@ -22,7 +22,6 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using System.Data.Common;
 #if ENTITIES6
 using System.Data.Entity.Core.Common.CommandTrees;
@@ -34,8 +33,8 @@ namespace Npgsql.SqlGenerators
 {
     internal class SqlDeleteGenerator : SqlBaseGenerator
     {
-        private DbDeleteCommandTree _commandTree;
-        private string _tableName;
+        readonly DbDeleteCommandTree _commandTree;
+        string _tableName;
 
         public SqlDeleteGenerator(DbDeleteCommandTree commandTree)
         {
@@ -44,7 +43,7 @@ namespace Npgsql.SqlGenerators
 
         public override VisitedExpression Visit(DbPropertyExpression expression)
         {
-            DbVariableReferenceExpression variable = expression.Instance as DbVariableReferenceExpression;
+            var variable = expression.Instance as DbVariableReferenceExpression;
             if (variable == null || variable.VariableName != _tableName)
                 throw new NotSupportedException();
             return new PropertyExpression(expression.Property);
@@ -53,13 +52,11 @@ namespace Npgsql.SqlGenerators
         public override void BuildCommand(DbCommand command)
         {
             // TODO: handle _commandTree.Returning and _commandTree.Parameters
-            DeleteExpression delete = new DeleteExpression();
+            var delete = new DeleteExpression();
             _tableName = _commandTree.Target.VariableName;
             delete.AppendFrom(_commandTree.Target.Expression.Accept(this));
             if (_commandTree.Predicate != null)
-            {
                 delete.AppendWhere(_commandTree.Predicate.Accept(this));
-            }
             _tableName = null;
             command.CommandText = delete.ToString();
         }

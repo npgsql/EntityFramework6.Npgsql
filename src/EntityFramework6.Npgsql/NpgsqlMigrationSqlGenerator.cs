@@ -30,6 +30,7 @@ using System.Text;
 using System.Data.Entity.Core.Metadata.Edm;
 using System.Data.Entity.Spatial;
 using System.Linq;
+using JetBrains.Annotations;
 
 namespace Npgsql
 {
@@ -38,10 +39,10 @@ namespace Npgsql
     /// </summary>
     public class NpgsqlMigrationSqlGenerator : MigrationSqlGenerator
     {
-        List<MigrationStatement> migrationStatments;
-        private List<string> addedSchemas;
-        private List<string> addedExtensions;
-        private Version serverVersion;
+        List<MigrationStatement> _migrationStatments;
+        List<string> _addedSchemas;
+        List<string> _addedExtensions;
+        Version _serverVersion;
 
         /// <summary>
         /// Generates the migration sql.
@@ -49,117 +50,76 @@ namespace Npgsql
         /// <param name="migrationOperations">The operations in the migration</param>
         /// <param name="providerManifestToken">The provider manifest token used for server versioning.</param>
         public override IEnumerable<MigrationStatement> Generate(
-            IEnumerable<MigrationOperation> migrationOperations, string providerManifestToken)
+            [NotNull] IEnumerable<MigrationOperation> migrationOperations,
+            [NotNull] string providerManifestToken)
         {
-            migrationStatments = new List<MigrationStatement>();
-            addedSchemas = new List<string>();
-            addedExtensions = new List<string>();
-            serverVersion = new Version(providerManifestToken);
+            _migrationStatments = new List<MigrationStatement>();
+            _addedSchemas = new List<string>();
+            _addedExtensions = new List<string>();
+            _serverVersion = new Version(providerManifestToken);
             Convert(migrationOperations);
-            return migrationStatments;
+            return _migrationStatments;
         }
 
         #region MigrationOperation to MigrationStatement converters
 
         #region General
 
-        protected virtual void Convert(IEnumerable<MigrationOperation> operations)
+        protected virtual void Convert([NotNull] IEnumerable<MigrationOperation> operations)
         {
             foreach (var migrationOperation in operations)
             {
                 if (migrationOperation is AddColumnOperation)
-                {
                     Convert(migrationOperation as AddColumnOperation);
-                }
                 else if (migrationOperation is AlterColumnOperation)
-                {
                     Convert(migrationOperation as AlterColumnOperation);
-                }
                 else if (migrationOperation is CreateTableOperation)
-                {
                     Convert(migrationOperation as CreateTableOperation);
-                }
                 else if (migrationOperation is DropForeignKeyOperation)
-                {
                     Convert(migrationOperation as DropForeignKeyOperation);
-                }
                 else if (migrationOperation is DropTableOperation)
-                {
                     Convert(migrationOperation as DropTableOperation);
-                }
                 else if (migrationOperation is MoveTableOperation)
-                {
                     Convert(migrationOperation as MoveTableOperation);
-                }
                 else if (migrationOperation is RenameTableOperation)
-                {
                     Convert(migrationOperation as RenameTableOperation);
-                }
                 else if (migrationOperation is AddForeignKeyOperation)
-                {
                     Convert(migrationOperation as AddForeignKeyOperation);
-                }
                 else if (migrationOperation is DropIndexOperation)
-                {
                     Convert(migrationOperation as DropIndexOperation);
-                }
                 else if (migrationOperation is SqlOperation)
-                {
                     AddStatment((migrationOperation as SqlOperation).Sql, (migrationOperation as SqlOperation).SuppressTransaction);
-                }
                 else if (migrationOperation is AddPrimaryKeyOperation)
-                {
                     Convert(migrationOperation as AddPrimaryKeyOperation);
-                }
                 else if (migrationOperation is CreateIndexOperation)
-                {
                     Convert(migrationOperation as CreateIndexOperation);
-                }
                 else if (migrationOperation is RenameIndexOperation)
-                {
                     Convert(migrationOperation as RenameIndexOperation);
-                }
                 else if (migrationOperation is DropColumnOperation)
-                {
                     Convert(migrationOperation as DropColumnOperation);
-                }
                 else if (migrationOperation is DropPrimaryKeyOperation)
-                {
                     Convert(migrationOperation as DropPrimaryKeyOperation);
-                }
                 else if (migrationOperation is HistoryOperation)
-                {
                     Convert(migrationOperation as HistoryOperation);
-                }
                 else if (migrationOperation is RenameColumnOperation)
-                {
                     Convert(migrationOperation as RenameColumnOperation);
-                }
                 else if (migrationOperation is UpdateDatabaseOperation)
-                {
                     Convert((migrationOperation as UpdateDatabaseOperation).Migrations as IEnumerable<MigrationOperation>);
-                }
                 else
-                {
                     throw new NotImplementedException("Unhandled MigrationOperation " + migrationOperation.GetType().Name + " in " + GetType().Name);
-                }
             }
         }
 
-        private void AddStatment(string sql, bool suppressTransacion = false)
-        {
-            migrationStatments.Add(new MigrationStatement
-            {
-                Sql = sql,
-                SuppressTransaction = suppressTransacion,
-                BatchTerminator = ";"
-            });
-        }
+        void AddStatment(string sql, bool suppressTransacion = false)
+            => _migrationStatments.Add(new MigrationStatement
+                {
+                    Sql = sql,
+                    SuppressTransaction = suppressTransacion,
+                    BatchTerminator = ";"
+                });
 
-        private void AddStatment(StringBuilder sql, bool suppressTransacion = false)
-        {
-            AddStatment(sql.ToString(), suppressTransacion);
-        }
+        void AddStatment(StringBuilder sql, bool suppressTransacion = false)
+            => AddStatment(sql.ToString(), suppressTransacion);
 
         #endregion
 
@@ -170,7 +130,7 @@ namespace Npgsql
             foreach (var command in historyOperation.CommandTrees)
             {
                 var npgsqlCommand = new NpgsqlCommand();
-                NpgsqlServices.Instance.TranslateCommandTree(serverVersion, command, npgsqlCommand, false);
+                NpgsqlServices.Instance.TranslateCommandTree(_serverVersion, command, npgsqlCommand, false);
                 AddStatment(npgsqlCommand.CommandText);
             }
         }
@@ -181,12 +141,10 @@ namespace Npgsql
 
         protected virtual void Convert(CreateTableOperation createTableOperation)
         {
-            StringBuilder sql = new StringBuilder();
-            int dotIndex = createTableOperation.Name.IndexOf('.');
+            var sql = new StringBuilder();
+            var dotIndex = createTableOperation.Name.IndexOf('.');
             if (dotIndex != -1)
-            {
                 CreateSchema(createTableOperation.Name.Remove(dotIndex));
-            }
 
             sql.Append("CREATE TABLE ");
             AppendTableName(createTableOperation.Name, sql);
@@ -222,7 +180,7 @@ namespace Npgsql
 
         protected virtual void Convert(DropTableOperation dropTableOperation)
         {
-            StringBuilder sql = new StringBuilder();
+            var  sql = new StringBuilder();
             sql.Append("DROP TABLE ");
             AppendTableName(dropTableOperation.Name, sql);
             AddStatment(sql);
@@ -230,7 +188,7 @@ namespace Npgsql
 
         protected virtual void Convert(RenameTableOperation renameTableOperation)
         {
-            StringBuilder sql = new StringBuilder();
+            var sql = new StringBuilder();
             sql.Append("ALTER TABLE ");
             AppendTableName(renameTableOperation.Name, sql);
             sql.Append(" RENAME TO ");
@@ -238,15 +196,13 @@ namespace Npgsql
             AddStatment(sql);
         }
 
-        private void CreateSchema(string schemaName)
+        void CreateSchema(string schemaName)
         {
-            if (schemaName == "public" || addedSchemas.Contains(schemaName))
+            if (schemaName == "public" || _addedSchemas.Contains(schemaName))
                 return;
-            addedSchemas.Add(schemaName);
-            if (serverVersion.Major > 9 || (serverVersion.Major == 9 && serverVersion.Minor >= 3))
-            {
+            _addedSchemas.Add(schemaName);
+            if (_serverVersion.Major > 9 || (_serverVersion.Major == 9 && _serverVersion.Minor >= 3))
                 AddStatment("CREATE SCHEMA IF NOT EXISTS " + schemaName);
-            }
             else
             {
                 //TODO: CREATE PROCEDURE that checks if schema already exists on servers < 9.3
@@ -254,7 +210,7 @@ namespace Npgsql
             }
         }
 
-        //private void CreateExtension(string exensionName)
+        //void CreateExtension(string exensionName)
         //{
         //    //This is compatible only with server 9.1+
         //    if (serverVersion.Major > 9 || (serverVersion.Major == 9 && serverVersion.Minor >= 1))
@@ -268,7 +224,7 @@ namespace Npgsql
 
         protected virtual void Convert(MoveTableOperation moveTableOperation)
         {
-            StringBuilder sql = new StringBuilder();
+            var sql = new StringBuilder();
             var newSchema = moveTableOperation.NewSchema ?? "dbo";
             CreateSchema(newSchema);
             sql.Append("ALTER TABLE ");
@@ -283,7 +239,7 @@ namespace Npgsql
         #region Columns
         protected virtual void Convert(AddColumnOperation addColumnOperation)
         {
-            StringBuilder sql = new StringBuilder();
+            var sql = new StringBuilder();
             sql.Append("ALTER TABLE ");
             AppendTableName(addColumnOperation.Table, sql);
             sql.Append(" ADD ");
@@ -293,7 +249,7 @@ namespace Npgsql
 
         protected virtual void Convert(DropColumnOperation dropColumnOperation)
         {
-            StringBuilder sql = new StringBuilder();
+            var sql = new StringBuilder();
             sql.Append("ALTER TABLE ");
             AppendTableName(dropColumnOperation.Table, sql);
             sql.Append(" DROP COLUMN \"");
@@ -304,7 +260,7 @@ namespace Npgsql
 
         protected virtual void Convert(AlterColumnOperation alterColumnOperation)
         {
-            StringBuilder sql = new StringBuilder();
+            var sql = new StringBuilder();
 
             //TYPE
             AppendAlterColumn(alterColumnOperation, sql);
@@ -359,13 +315,11 @@ namespace Npgsql
                 }
             }
             else
-            {
                 sql.Append(" DROP DEFAULT");
-            }
             AddStatment(sql);
         }
 
-        private void AppendAlterColumn(AlterColumnOperation alterColumnOperation, StringBuilder sql)
+        void AppendAlterColumn(AlterColumnOperation alterColumnOperation, StringBuilder sql)
         {
             sql.Append("ALTER TABLE ");
             AppendTableName(alterColumnOperation.Table, sql);
@@ -376,7 +330,7 @@ namespace Npgsql
 
         protected virtual void Convert(RenameColumnOperation renameColumnOperation)
         {
-            StringBuilder sql = new StringBuilder();
+            var sql = new StringBuilder();
             sql.Append("ALTER TABLE ");
             AppendTableName(renameColumnOperation.Table, sql);
             sql.Append(" RENAME COLUMN \"");
@@ -393,7 +347,7 @@ namespace Npgsql
 
         protected virtual void Convert(AddForeignKeyOperation addForeignKeyOperation)
         {
-            StringBuilder sql = new StringBuilder();
+            var sql = new StringBuilder();
             sql.Append("ALTER TABLE ");
             AppendTableName(addForeignKeyOperation.DependentTable, sql);
             sql.Append(" ADD CONSTRAINT \"");
@@ -419,21 +373,19 @@ namespace Npgsql
             sql.Append(")");
 
             if (addForeignKeyOperation.CascadeDelete)
-            {
                 sql.Append(" ON DELETE CASCADE");
-            }
             AddStatment(sql);
         }
 
         protected virtual void Convert(DropForeignKeyOperation dropForeignKeyOperation)
         {
-            StringBuilder sql = new StringBuilder();
+            var sql = new StringBuilder();
             sql.Append("ALTER TABLE ");
             AppendTableName(dropForeignKeyOperation.DependentTable, sql);
-            if (serverVersion.Major < 9)
-                sql.Append(" DROP CONSTRAINT \"");//TODO: http://piecesformthewhole.blogspot.com/2011/04/dropping-foreign-key-if-it-exists-in.html ?
-            else
-                sql.Append(" DROP CONSTRAINT IF EXISTS \"");
+            sql.Append(_serverVersion.Major < 9
+                ? " DROP CONSTRAINT \""  //TODO: http://piecesformthewhole.blogspot.com/2011/04/dropping-foreign-key-if-it-exists-in.html ?
+                : " DROP CONSTRAINT IF EXISTS \""
+            );
             sql.Append(dropForeignKeyOperation.Name);
             sql.Append('"');
             AddStatment(sql);
@@ -441,7 +393,7 @@ namespace Npgsql
 
         protected virtual void Convert(CreateIndexOperation createIndexOperation)
         {
-            StringBuilder sql = new StringBuilder();
+            var sql = new StringBuilder();
             sql.Append("CREATE ");
 
             if (createIndexOperation.IsUnique)
@@ -465,16 +417,11 @@ namespace Npgsql
 
         protected virtual void Convert(RenameIndexOperation renameIndexOperation)
         {
-            StringBuilder sql = new StringBuilder();
+            var sql = new StringBuilder();
 
-            if (serverVersion.Major > 9 || (serverVersion.Major == 9 && serverVersion.Minor >= 2))
-            {
-                sql.Append("ALTER INDEX IF EXISTS ");
-            }
-            else
-            {
-                sql.Append("ALTER INDEX ");
-            }
+            sql.Append(_serverVersion.Major > 9 || (_serverVersion.Major == 9 && _serverVersion.Minor >= 2)
+                ? "ALTER INDEX IF EXISTS "
+                : "ALTER INDEX ");
 
             sql.Append(GetSchemaNameFromFullTableName(renameIndexOperation.Table));
             sql.Append(".\"");
@@ -485,13 +432,11 @@ namespace Npgsql
             AddStatment(sql);
         }
 
-        private string GetSchemaNameFromFullTableName(string tableFullName)
+        string GetSchemaNameFromFullTableName(string tableFullName)
         {
-            int dotIndex = tableFullName.IndexOf('.');
-            if (dotIndex != -1)
-                return tableFullName.Remove(dotIndex);
-            else
-                return "dto";//TODO: Check always setting dto schema if no schema in table name is not bug
+            var dotIndex = tableFullName.IndexOf('.');
+            return dotIndex != -1 ? tableFullName.Remove(dotIndex) : "dto";   
+            //TODO: Check always setting dto schema if no schema in table name is not bug
         }
 
         /// <summary>
@@ -499,18 +444,15 @@ namespace Npgsql
         /// </summary>
         /// <param name="tableName"></param>
         /// <returns></returns>
-        private string GetTableNameFromFullTableName(string tableName)
+        string GetTableNameFromFullTableName(string tableName)
         {
-            int dotIndex = tableName.IndexOf('.');
-            if (dotIndex != -1)
-                return tableName.Substring(dotIndex + 1);
-            else
-                return tableName;
+            var dotIndex = tableName.IndexOf('.');
+            return dotIndex != -1 ? tableName.Substring(dotIndex + 1) : tableName;
         }
 
         protected virtual void Convert(DropIndexOperation dropIndexOperation)
         {
-            StringBuilder sql = new StringBuilder();
+            var sql = new StringBuilder();
             sql.Append("DROP INDEX IF EXISTS ");
             sql.Append(GetSchemaNameFromFullTableName(dropIndexOperation.Table));
             sql.Append(".\"");
@@ -521,7 +463,7 @@ namespace Npgsql
 
         protected virtual void Convert(AddPrimaryKeyOperation addPrimaryKeyOperation)
         {
-            StringBuilder sql = new StringBuilder();
+            var sql = new StringBuilder();
             sql.Append("ALTER TABLE ");
             AppendTableName(addPrimaryKeyOperation.Table, sql);
             sql.Append(" ADD CONSTRAINT \"");
@@ -542,7 +484,7 @@ namespace Npgsql
 
         protected virtual void Convert(DropPrimaryKeyOperation dropPrimaryKeyOperation)
         {
-            StringBuilder sql = new StringBuilder();
+            var sql = new StringBuilder();
             sql.Append("ALTER TABLE ");
             AppendTableName(dropPrimaryKeyOperation.Table, sql);
             sql.Append(" DROP CONSTRAINT \"");
@@ -557,7 +499,7 @@ namespace Npgsql
 
         #region Misc functions
 
-        private void AppendColumn(ColumnModel column, StringBuilder sql)
+        void AppendColumn(ColumnModel column, StringBuilder sql)
         {
             sql.Append('"');
             sql.Append(column.Name);
@@ -581,19 +523,19 @@ namespace Npgsql
             {
                 switch (column.Type)
                 {
-                    case PrimitiveTypeKind.Guid:
-                        //CreateExtension("uuid-ossp");
-                        //If uuid-ossp is not enabled migrations throw exception
-                        AddStatment("select * from uuid_generate_v4()");
-                        sql.Append(" DEFAULT uuid_generate_v4()");
-                        break;
-                    case PrimitiveTypeKind.Byte:
-                    case PrimitiveTypeKind.SByte:
-                    case PrimitiveTypeKind.Int16:
-                    case PrimitiveTypeKind.Int32:
-                    case PrimitiveTypeKind.Int64:
-                        //TODO: Add support for setting "SERIAL"
-                        break;
+                case PrimitiveTypeKind.Guid:
+                    //CreateExtension("uuid-ossp");
+                    //If uuid-ossp is not enabled migrations throw exception
+                    AddStatment("select * from uuid_generate_v4()");
+                    sql.Append(" DEFAULT uuid_generate_v4()");
+                    break;
+                case PrimitiveTypeKind.Byte:
+                case PrimitiveTypeKind.SByte:
+                case PrimitiveTypeKind.Int16:
+                case PrimitiveTypeKind.Int32:
+                case PrimitiveTypeKind.Int64:
+                    //TODO: Add support for setting "SERIAL"
+                    break;
                 }
             }
             else if (column.IsNullable != null
@@ -606,152 +548,145 @@ namespace Npgsql
             }
         }
 
-        private void AppendColumnType(ColumnModel column, StringBuilder sql, bool setSerial)
+        void AppendColumnType(ColumnModel column, StringBuilder sql, bool setSerial)
         {
             if (column.StoreType != null)
             {
                 sql.Append(column.StoreType);
                 return;
             }
+
             switch (column.Type)
             {
-                case PrimitiveTypeKind.Binary:
-                    sql.Append("bytea");
-                    break;
-                case PrimitiveTypeKind.Boolean:
-                    sql.Append("boolean");
-                    break;
-                case PrimitiveTypeKind.DateTime:
-                    if (column.Precision != null)
-                        sql.Append("timestamp(" + column.Precision + ")");
-                    else
-                        sql.Append("timestamp");
-                    break;
-                case PrimitiveTypeKind.Decimal:
-                    //TODO: Check if inside min/max
-                    if (column.Precision == null && column.Scale == null)
-                    {
-                        sql.Append("numeric");
-                    }
-                    else
-                    {
-                        sql.Append("numeric(");
-                        sql.Append(column.Precision ?? 19);
-                        sql.Append(',');
-                        sql.Append(column.Scale ?? 4);
-                        sql.Append(')');
-                    }
-                    break;
-                case PrimitiveTypeKind.Double:
-                    sql.Append("float8");
-                    break;
-                case PrimitiveTypeKind.Guid:
-                    sql.Append("uuid");
-                    break;
-                case PrimitiveTypeKind.Single:
-                    sql.Append("float4");
-                    break;
-                case PrimitiveTypeKind.Byte://postgres doesn't support sbyte :(
-                case PrimitiveTypeKind.SByte://postgres doesn't support sbyte :(
-                case PrimitiveTypeKind.Int16:
-                    if (setSerial)
-                        sql.Append(column.IsIdentity ? "serial2" : "int2");
-                    else
-                        sql.Append("int2");
-                    break;
-                case PrimitiveTypeKind.Int32:
-                    if (setSerial)
-                        sql.Append(column.IsIdentity ? "serial4" : "int4");
-                    else
-                        sql.Append("int4");
-                    break;
-                case PrimitiveTypeKind.Int64:
-                    if (setSerial)
-                        sql.Append(column.IsIdentity ? "serial8" : "int8");
-                    else
-                        sql.Append("int8");
-                    break;
-                case PrimitiveTypeKind.String:
-                    if (column.IsFixedLength.HasValue &&
-                        column.IsFixedLength.Value &&
-                        column.MaxLength.HasValue)
-                    {
-                        sql.AppendFormat("char({0})",column.MaxLength.Value);
-                    }
-                    else if (column.MaxLength.HasValue)
-                    {
-                        sql.AppendFormat("varchar({0})", column.MaxLength);
-                    }
-                    else
-                    {
-                        sql.Append("text");
-                    }
-                    break;
-                case PrimitiveTypeKind.Time:
-                    if (column.Precision != null)
-                    {
-                        sql.Append("interval(");
-                        sql.Append(column.Precision);
-                        sql.Append(')');
-                    }
-                    else
-                    {
-                        sql.Append("interval");
-                    }
-                    break;
-                case PrimitiveTypeKind.DateTimeOffset:
-                    if (column.Precision != null)
-                    {
-                        sql.Append("timestamptz(");
-                        sql.Append(column.Precision);
-                        sql.Append(')');
-                    }
-                    else
-                    {
-                        sql.Append("timestamptz");
-                    }
-                    break;
-                case PrimitiveTypeKind.Geometry:
-                    sql.Append("point");
-                    break;
-                //case PrimitiveTypeKind.Geography:
-                //    break;
-                //case PrimitiveTypeKind.GeometryPoint:
-                //    break;
-                //case PrimitiveTypeKind.GeometryLineString:
-                //    break;
-                //case PrimitiveTypeKind.GeometryPolygon:
-                //    break;
-                //case PrimitiveTypeKind.GeometryMultiPoint:
-                //    break;
-                //case PrimitiveTypeKind.GeometryMultiLineString:
-                //    break;
-                //case PrimitiveTypeKind.GeometryMultiPolygon:
-                //    break;
-                //case PrimitiveTypeKind.GeometryCollection:
-                //    break;
-                //case PrimitiveTypeKind.GeographyPoint:
-                //    break;
-                //case PrimitiveTypeKind.GeographyLineString:
-                //    break;
-                //case PrimitiveTypeKind.GeographyPolygon:
-                //    break;
-                //case PrimitiveTypeKind.GeographyMultiPoint:
-                //    break;
-                //case PrimitiveTypeKind.GeographyMultiLineString:
-                //    break;
-                //case PrimitiveTypeKind.GeographyMultiPolygon:
-                //    break;
-                //case PrimitiveTypeKind.GeographyCollection:
-                //    break;
-                default:
-                    throw new ArgumentException("Unhandled column type:" + column.Type);
+            case PrimitiveTypeKind.Binary:
+                sql.Append("bytea");
+                break;
+            case PrimitiveTypeKind.Boolean:
+                sql.Append("boolean");
+                break;
+            case PrimitiveTypeKind.DateTime:
+                sql.Append(column.Precision != null
+                    ? $"timestamp({column.Precision})"
+                    : "timestamp"
+                );
+                break;
+            case PrimitiveTypeKind.Decimal:
+                //TODO: Check if inside min/max
+                if (column.Precision == null && column.Scale == null)
+                    sql.Append("numeric");
+                else
+                {
+                    sql.Append("numeric(");
+                    sql.Append(column.Precision ?? 19);
+                    sql.Append(',');
+                    sql.Append(column.Scale ?? 4);
+                    sql.Append(')');
+                }
+                break;
+            case PrimitiveTypeKind.Double:
+                sql.Append("float8");
+                break;
+            case PrimitiveTypeKind.Guid:
+                sql.Append("uuid");
+                break;
+            case PrimitiveTypeKind.Single:
+                sql.Append("float4");
+                break;
+            case PrimitiveTypeKind.Byte://postgres doesn't support sbyte :(
+            case PrimitiveTypeKind.SByte://postgres doesn't support sbyte :(
+            case PrimitiveTypeKind.Int16:
+                sql.Append(setSerial
+                    ? column.IsIdentity ? "serial2" : "int2"
+                    : "int2"
+                );
+                break;
+            case PrimitiveTypeKind.Int32:
+                sql.Append(setSerial
+                    ? column.IsIdentity ? "serial4" : "int4"
+                    : "int4"
+                );
+                break;
+            case PrimitiveTypeKind.Int64:
+                sql.Append(setSerial
+                    ? column.IsIdentity ? "serial8" : "int8"
+                    : "int8"
+                );
+                break;
+            case PrimitiveTypeKind.String:
+                if (column.IsFixedLength.HasValue &&
+                    column.IsFixedLength.Value &&
+                    column.MaxLength.HasValue)
+                {
+                    sql.Append($"char({column.MaxLength.Value})");
+                }
+                else if (column.MaxLength.HasValue)
+                    sql.Append($"varchar({column.MaxLength})");
+                else
+                    sql.Append("text");
+                break;
+            case PrimitiveTypeKind.Time:
+                if (column.Precision != null)
+                {
+                    sql.Append("interval(");
+                    sql.Append(column.Precision);
+                    sql.Append(')');
+                }
+                else
+                    sql.Append("interval");
+                break;
+            case PrimitiveTypeKind.DateTimeOffset:
+                if (column.Precision != null)
+                {
+                    sql.Append("timestamptz(");
+                    sql.Append(column.Precision);
+                    sql.Append(')');
+                }
+                else
+                {
+                    sql.Append("timestamptz");
+                }
+                break;
+            case PrimitiveTypeKind.Geometry:
+                sql.Append("point");
+                break;
+            //case PrimitiveTypeKind.Geography:
+            //    break;
+            //case PrimitiveTypeKind.GeometryPoint:
+            //    break;
+            //case PrimitiveTypeKind.GeometryLineString:
+            //    break;
+            //case PrimitiveTypeKind.GeometryPolygon:
+            //    break;
+            //case PrimitiveTypeKind.GeometryMultiPoint:
+            //    break;
+            //case PrimitiveTypeKind.GeometryMultiLineString:
+            //    break;
+            //case PrimitiveTypeKind.GeometryMultiPolygon:
+            //    break;
+            //case PrimitiveTypeKind.GeometryCollection:
+            //    break;
+            //case PrimitiveTypeKind.GeographyPoint:
+            //    break;
+            //case PrimitiveTypeKind.GeographyLineString:
+            //    break;
+            //case PrimitiveTypeKind.GeographyPolygon:
+            //    break;
+            //case PrimitiveTypeKind.GeographyMultiPoint:
+            //    break;
+            //case PrimitiveTypeKind.GeographyMultiLineString:
+            //    break;
+            //case PrimitiveTypeKind.GeographyMultiPolygon:
+            //    break;
+            //case PrimitiveTypeKind.GeographyCollection:
+            //    break;
+            default:
+                throw new ArgumentException("Unhandled column type:" + column.Type);
             }
         }
 
-        private void AppendTableName(string tableName, StringBuilder sql)
+        void AppendTableName(string tableName, StringBuilder sql)
         {
-            int dotIndex = tableName.IndexOf('.');
+            var dotIndex = tableName.IndexOf('.');
             if (dotIndex == -1)
             {
                 sql.Append('"');
@@ -772,12 +707,10 @@ namespace Npgsql
 
         #region Value appenders
 
-        private void AppendValue(byte[] values, StringBuilder sql)
+        void AppendValue(byte[] values, StringBuilder sql)
         {
             if (values.Length == 0)
-            {
                 sql.Append("''");
-            }
             else
             {
                 sql.Append("E'\\\\");
@@ -787,91 +720,73 @@ namespace Npgsql
             }
         }
 
-        private void AppendValue(bool value, StringBuilder sql)
+        void AppendValue(bool value, StringBuilder sql)
         {
             sql.Append(value ? "TRUE" : "FALSE");
         }
 
-        private void AppendValue(DateTime value, StringBuilder sql)
+        void AppendValue(DateTime value, StringBuilder sql)
         {
             sql.Append("'");
             sql.Append(new NpgsqlTypes.NpgsqlDateTime(value));
             sql.Append("'");
         }
 
-        private void AppendValue(DateTimeOffset value, StringBuilder sql)
+        void AppendValue(DateTimeOffset value, StringBuilder sql)
         {
             sql.Append("'");
             sql.Append(new NpgsqlTypes.NpgsqlDateTime(value.UtcDateTime));
             sql.Append("'");
         }
 
-        private void AppendValue(Guid value, StringBuilder sql)
+        void AppendValue(Guid value, StringBuilder sql)
         {
             sql.Append("'");
             sql.Append(value);
             sql.Append("'");
         }
 
-        private void AppendValue(string value, StringBuilder sql)
+        void AppendValue(string value, StringBuilder sql)
         {
             sql.Append("'");
             sql.Append(value);
             sql.Append("'");
         }
 
-        private void AppendValue(TimeSpan value, StringBuilder sql)
+        void AppendValue(TimeSpan value, StringBuilder sql)
         {
             sql.Append("'");
-            sql.Append(new NpgsqlTypes.NpgsqlTimeSpan(value).ToString());
+            sql.Append(new NpgsqlTypes.NpgsqlTimeSpan(value));
             sql.Append("'");
         }
 
-        private void AppendValue(DbGeometry value, StringBuilder sql)
+        void AppendValue(DbGeometry value, StringBuilder sql)
         {
             sql.Append("'");
             sql.Append(value);
             sql.Append("'");
         }
 
-        private void AppendValue(object value, StringBuilder sql)
+        void AppendValue(object value, StringBuilder sql)
         {
             if (value is byte[])
-            {
                 AppendValue((byte[])value, sql);
-            }
             else if (value is bool)
-            {
                 AppendValue((bool)value, sql);
-            }
             else if (value is DateTime)
-            {
                 AppendValue((DateTime)value, sql);
-            }
             else if (value is DateTimeOffset)
-            {
                 AppendValue((DateTimeOffset)value, sql);
-            }
             else if (value is Guid)
-            {
                 AppendValue((Guid)value, sql);
-            }
             else if (value is string)
-            {
                 AppendValue((string)value, sql);
-            }
             else if (value is TimeSpan)
-            {
                 AppendValue((TimeSpan)value, sql);
-            }
             else if (value is DbGeometry)
-            {
                 AppendValue((DbGeometry)value, sql);
-            }
             else
-            {
                 sql.Append(string.Format(CultureInfo.InvariantCulture, "{0}", value));
-            }
         }
 
         #endregion
