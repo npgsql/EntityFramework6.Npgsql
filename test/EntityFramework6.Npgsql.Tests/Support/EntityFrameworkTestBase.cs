@@ -104,6 +104,20 @@ namespace EntityFramework6.Npgsql.Tests
         public int Id { get; set; }
     }
 
+    [Table("Users")]
+    public abstract class User
+    {
+        public int Id { get; set; }
+
+        public IList<Blog> Blogs { get; set; }
+    }
+
+    [Table("Editors")]
+    public class Editor : User { }
+
+    [Table("Administrators")]
+    public class Administrator : User { }
+
     public class BloggingContext : DbContext
     {
         public BloggingContext(string connection)
@@ -114,6 +128,9 @@ namespace EntityFramework6.Npgsql.Tests
         public DbSet<Blog> Blogs { get; set; }
         public DbSet<Post> Posts { get; set; }
         public DbSet<NoColumnsEntity> NoColumnsEntities { get; set; }
+        public DbSet<User> Users { get; set; }
+        public DbSet<Editor> Editors { get; set; }
+        public DbSet<Administrator> Administrators { get; set; }
 
         [DbFunction("BloggingContext", "ClrStoredAddFunction")]
         public static int StoredAddFunction(int val1, int val2)
@@ -135,6 +152,9 @@ namespace EntityFramework6.Npgsql.Tests
             dbModelBuilder.Entity<Blog>();
             dbModelBuilder.Entity<Post>();
             dbModelBuilder.Entity<NoColumnsEntity>();
+            dbModelBuilder.Entity<User>();
+            dbModelBuilder.Entity<Editor>();
+            dbModelBuilder.Entity<Administrator>();
 
             // Import function
             var dbModel = dbModelBuilder.Build(connection);

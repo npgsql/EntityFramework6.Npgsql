@@ -351,15 +351,15 @@ namespace Npgsql
         public override bool SupportsInExpression() => true;
 
         public override ReadOnlyCollection<EdmFunction> GetStoreFunctions()
-            => typeof(NpgsqlTextFunctions).GetTypeInfo()
-                .GetMethods(BindingFlags.Public | BindingFlags.Static)
+            => new[] { typeof(NpgsqlTextFunctions).GetTypeInfo(), typeof(NpgsqlTypeFunctions) }
+                .SelectMany(x => x.GetMethods(BindingFlags.Public | BindingFlags.Static))
                 .Select(x => new { Method = x, DbFunction = x.GetCustomAttribute<DbFunctionAttribute>() })
                 .Where(x => x.DbFunction != null)
-                .Select(x => CreateFullTextEdmFunction(x.Method, x.DbFunction))
+                .Select(x => CreateComposableEdmFunction(x.Method, x.DbFunction))
                 .ToList()
                 .AsReadOnly();
 
-        static EdmFunction CreateFullTextEdmFunction([NotNull] MethodInfo method, [NotNull] DbFunctionAttribute dbFunctionInfo)
+        static EdmFunction CreateComposableEdmFunction([NotNull] MethodInfo method, [NotNull] DbFunctionAttribute dbFunctionInfo)
         {
             if (method == null)
                 throw new ArgumentNullException(nameof(method));
