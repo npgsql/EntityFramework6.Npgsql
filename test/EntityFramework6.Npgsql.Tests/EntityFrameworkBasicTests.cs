@@ -719,5 +719,43 @@ namespace EntityFramework6.Npgsql.Tests
                 Assert.That(administrator.HasBlog, Is.True);
             }
         }
+
+        [Test]
+        public void TestTableValuedStoredFunctions()
+        {
+            using (var context = new BloggingContext(ConnectionString))
+            {
+                context.Database.Log = Console.Out.WriteLine;
+
+                // Add some data and query it back using Stored Function
+                context.Blogs.Add(new Blog
+                {
+                    Name = "Some blog1 name",
+                    Posts = new List<Post>()
+                });
+                context.Blogs.Add(new Blog
+                {
+                    Name = "Some blog2 name",
+                    Posts = new List<Post>()
+                });
+                context.SaveChanges();
+
+                // Query back
+                var query = from b in context.GetBlogsByName("blog1")
+                        select b;
+                var list = query.ToList();
+
+                Assert.AreEqual(1, list.Count);
+                Assert.AreEqual("Some blog1 name", list[0].Name);
+
+                // Query with projection
+                var query2 = from b in context.GetBlogsByName("blog1")
+                            select new { b.Name, Something = 1 };
+                var list2 = query2.ToList();
+                Assert.AreEqual(1, list2.Count);
+                Assert.AreEqual("Some blog1 name", list2[0].Name);
+                Assert.AreEqual(1, list2[0].Something);
+            }
+        }
     }
 }

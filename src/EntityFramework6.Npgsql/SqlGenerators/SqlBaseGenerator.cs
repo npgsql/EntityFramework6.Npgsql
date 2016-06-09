@@ -399,6 +399,15 @@ namespace Npgsql.SqlGenerators
 
                 break;
             }
+            case DbExpressionKind.Function:
+            {
+                var function = (DbFunctionExpression)expression;
+                var input = new InputExpression(
+                    VisitFunction(function.Function, function.Arguments, function.ResultType), bindingName);
+
+                n = new PendingProjectsNode(bindingName, input);
+                break;
+            }
             default:
                 throw new NotImplementedException();
             }

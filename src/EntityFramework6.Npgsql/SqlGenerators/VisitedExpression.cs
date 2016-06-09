@@ -526,7 +526,7 @@ namespace Npgsql.SqlGenerators
             }
             else
             {
-                var wrap = !(_from is LiteralExpression || _from is ScanExpression);
+                var wrap = !(_from is LiteralExpression || _from is ScanExpression || _from is FunctionExpression);
                 if (wrap)
                     sqlText.Append("(");
                 _from.WriteSql(sqlText);
