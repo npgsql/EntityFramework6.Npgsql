@@ -844,6 +844,7 @@ namespace Npgsql.SqlGenerators
         public static readonly Operator QueryNegate = new Operator("!!", 10, 8, UnaryTypes.Prefix, true);
         public static readonly Operator QueryContains = new Operator("@>", 10, 8);
         public static readonly Operator QueryIsContained = new Operator("<@", 10, 8);
+        public static readonly Operator RegexMatch = new Operator("~", 10, 8);
 
         public static readonly Dictionary<Operator, Operator> NegateDict;
 

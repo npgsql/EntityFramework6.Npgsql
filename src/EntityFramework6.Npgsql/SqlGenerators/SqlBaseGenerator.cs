@@ -35,6 +35,8 @@ using System.Data.Metadata.Edm;
 #endif
 using System.Linq;
 using JetBrains.Annotations;
+using System.Text.RegularExpressions;
+using System.Text;
 
 namespace Npgsql.SqlGenerators
 {
@@ -1144,6 +1146,10 @@ namespace Npgsql.SqlGenerators
 
                     return new CastExpression(args[0].Accept(this), "tsquery");
                 }
+                else if (functionName == "match_regex")
+                {
+                    return VisitMatchRegex(function, args, resultType);
+                }
             }
 
             var customFuncCall = new FunctionExpression(
@@ -1159,6 +1165,76 @@ namespace Npgsql.SqlGenerators
             throw new NotSupportedException();
 #endif
         }
+
+#if ENTITIES6
+        VisitedExpression VisitMatchRegex(EdmFunction function, IList<DbExpression> args, TypeUsage resultType)
+        {
+            if (args.Count != 2 && args.Count != 3)
+                throw new ArgumentException("Invalid number of arguments. Expected 2 or 3.", nameof(args));
+
+            var options = RegexOptions.None;
+
+            if (args.Count == 3)
+            {
+                var optionsExpression = args[2] as DbConstantExpression;
+                if (optionsExpression == null)
+                    throw new NotSupportedException("Options must be constant expression.");
+
+                options = (RegexOptions)optionsExpression.Value;
+            }
+
+            if (options.HasFlag(RegexOptions.RightToLeft) || options.HasFlag(RegexOptions.ECMAScript))
+            {
+                throw new NotSupportedException("Options RightToLeft and ECMAScript are not supported.");
+            }
+
+            if (options == RegexOptions.Singleline)
+            {
+                return OperatorExpression.Build(
+                    Operator.RegexMatch,
+                    _useNewPrecedences,
+                    args[0].Accept(this),
+                    args[1].Accept(this));
+            }
+
+            var flags = new StringBuilder("(?");
+
+            if (options.HasFlag(RegexOptions.IgnoreCase))
+            {
+                flags.Append('i');
+            }
+
+            if (options.HasFlag(RegexOptions.Multiline))
+            {
+                flags.Append('n');
+            }
+            else if (!options.HasFlag(RegexOptions.Singleline))
+            {
+                // In .NET's default mode, . doesn't match newlines but PostgreSQL it does.
+                flags.Append('p');
+            }
+
+            if (options.HasFlag(RegexOptions.IgnorePatternWhitespace))
+            {
+                flags.Append('x');
+            }
+
+            flags.Append(')');
+
+            var primitiveType = PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.String);
+            var newRegexExpression = OperatorExpression.Build(
+                Operator.Concat,
+                _useNewPrecedences,
+                new ConstantExpression(flags.ToString(), TypeUsage.CreateStringTypeUsage(primitiveType, true, false)),
+                args[1].Accept(this));
+
+            return OperatorExpression.Build(
+                    Operator.RegexMatch,
+                    _useNewPrecedences,
+                    args[0].Accept(this),
+                    newRegexExpression);
+        }
+#endif
 
         VisitedExpression Substring(VisitedExpression source, VisitedExpression start, VisitedExpression count)
         {

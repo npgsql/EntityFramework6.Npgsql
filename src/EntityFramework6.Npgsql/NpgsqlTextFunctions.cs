@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Data.Entity;
 using System.Diagnostics.CodeAnalysis;
+using System.Text.RegularExpressions;
 
 namespace Npgsql
 {
@@ -368,5 +369,31 @@ namespace Npgsql
         {
             throw new NotSupportedException();
         }
-    }   
+
+        /// <summary>
+        /// Matches regular expression. Generates the "~" operator.
+        /// http://www.postgresql.org/docs/current/static/functions-matching.html#FUNCTIONS-POSIX-REGEXP
+        /// This method follows the semantics of <see cref="Regex.IsMatch(string, string)"/>
+        /// and it is translated to the equivalent PostgreSQL expression when executed.
+        /// </summary>
+        [DbFunction("Npgsql", "match_regex")]
+        public static bool MatchRegex(string input, string pattern)
+        {
+            throw new NotSupportedException();
+        }
+
+        /// <summary>
+        /// Matches regular expression. Generates the "~" operator.
+        /// http://www.postgresql.org/docs/current/static/functions-matching.html#FUNCTIONS-POSIX-REGEXP
+        /// This method follows the semantics of <see cref="Regex.IsMatch(string, string, RegexOptions)"/>
+        /// and it is translated to the equivalent PostgreSQL expression when executed.
+        /// Options <see cref="RegexOptions.RightToLeft"/> and <see cref="RegexOptions.ECMAScript"/>
+        /// are not supported.
+        /// </summary>
+        [DbFunction("Npgsql", "match_regex")]
+        public static bool MatchRegex(string input, string pattern, RegexOptions options)
+        {
+            throw new NotSupportedException();
+        }
+    }
 }
