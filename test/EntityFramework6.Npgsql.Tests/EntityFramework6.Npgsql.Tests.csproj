@@ -72,6 +72,7 @@
   <ItemGroup>
     <Compile Include="EntityFrameworkBasicTests.cs" />
     <Compile Include="EntityFrameworkMigrationTests.cs" />
+    <Compile Include="PatternMatchingTests.cs" />
     <Compile Include="Support\EntityFrameworkTestBase.cs" />
     <Compile Include="FullTextSearchTests.cs" />
     <Compile Include="NLogLoggingProvider.cs" />
