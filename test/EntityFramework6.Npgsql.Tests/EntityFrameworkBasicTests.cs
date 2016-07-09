@@ -650,5 +650,74 @@ namespace EntityFramework6.Npgsql.Tests
                 Assert.That(echo, Is.EqualTo(1337));
             }
         }
+
+        [Test]
+        public void TestCastFunction()
+        {
+            using (var context = new BloggingContext(ConnectionString))
+            {
+                context.Database.Log = Console.Out.WriteLine;
+
+                var varbitVal = "10011";
+
+                var blog = new Blog
+                {
+                    Name = "_",
+                    Posts = new List<Post>
+                    {
+                        new Post
+                        {
+                            Content = "Some post content",
+                            Rating = 1,
+                            Title = "Some post Title",
+                            VarbitColumn = varbitVal
+                        }
+                    }
+                };
+                context.Blogs.Add(blog);
+                context.SaveChanges();
+
+                Assert.IsTrue(
+                    context.Posts.Select(
+                        p => NpgsqlTypeFunctions.Cast(p.VarbitColumn, "varbit") == varbitVal).First());
+
+                Assert.IsTrue(
+                    context.Posts.Select(
+                        p => NpgsqlTypeFunctions.Cast(p.VarbitColumn, "varbit") == "10011").First());
+            }
+        }
+
+        [Test]
+        public void Test_issue_27_select_ef_generated_literals_from_inner_select()
+        {
+            using (var context = new BloggingContext(ConnectionString))
+            {
+                context.Database.Log = Console.Out.WriteLine;
+
+                var blog = new Blog { Name = "Hello" };
+                context.Users.Add(new Administrator { Blogs = new List<Blog> { blog } });
+                context.Users.Add(new Editor());
+                context.SaveChanges();
+
+                var administrator = context.Users
+                    .Where(x => x is Administrator) // Removing this changes the query to using a UNION which doesn't fail.
+                    .Select(
+                        x => new
+                        {
+                           // causes entity framework to emit a literal discriminator
+                           Computed = x is Administrator
+                                ? "I administrate"
+                                : x is Editor
+                                    ? "I edit"
+                                    : "Unknown",
+                           // causes an inner select to be emitted thus showing the issue
+                           HasBlog = x.Blogs.Any()
+                        })
+                    .First();
+
+                Assert.That(administrator.Computed, Is.EqualTo("I administrate"));
+                Assert.That(administrator.HasBlog, Is.True);
+            }
+        }
     }
 }
