@@ -333,11 +333,18 @@ namespace Npgsql.SqlGenerators
                         input.Projection = new CommaSeparatedExpression();
 
                         DbNewInstanceExpression projection = (DbNewInstanceExpression)exp.Projection;
-                        RowType rowType = projection.ResultType.EdmType as RowType;
+                        RowType rowType = (RowType)projection.ResultType.EdmType;
                         for (int i = 0; i < rowType.Properties.Count && i < projection.Arguments.Count; ++i)
                         {
-                            EdmProperty prop = rowType.Properties[i];
-                            input.Projection.Arguments.Add(new ColumnExpression(projection.Arguments[i].Accept(this), prop.Name, prop.TypeUsage));
+                            var prop = rowType.Properties[i];
+                            var argument = projection.Arguments[i].Accept(this);
+                            var constantArgument = projection.Arguments[i] as DbConstantExpression;
+                            if (constantArgument != null && constantArgument.Value is string)
+                            {
+                                argument = new CastExpression(argument, "varchar");
+                            }
+
+                            input.Projection.Arguments.Add(new ColumnExpression(argument, prop.Name, prop.TypeUsage));
                         }
 
                         if (enterScope) LeaveExpression(child);
@@ -1209,6 +1216,17 @@ namespace Npgsql.SqlGenerators
                         throw new ArgumentException("Invalid number of arguments. Expected 1.", nameof(args));
 
                     return new CastExpression(args[0].Accept(this), "tsquery");
+                }
+                else if (functionName == "cast")
+                {
+                    if (args.Count != 2)
+                        throw new ArgumentException("Invalid number of arguments. Expected 2.", "args");
+
+                    var typeNameExpression = args[1] as DbConstantExpression;
+                    if (typeNameExpression == null)
+                        throw new NotSupportedException("cast type name argument must be a constant expression.");
+
+                    return new CastExpression(args[0].Accept(this), typeNameExpression.Value.ToString());
                 }
             }
 

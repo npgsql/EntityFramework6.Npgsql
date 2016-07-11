@@ -371,20 +371,15 @@ namespace Npgsql
         }
 
         public override ReadOnlyCollection<EdmFunction> GetStoreFunctions()
-        {
-            var functions = new List<EdmFunction>();
+            => new[] { typeof(NpgsqlTextFunctions).GetTypeInfo(), typeof(NpgsqlTypeFunctions) }
+                .SelectMany(x => x.GetMethods(BindingFlags.Public | BindingFlags.Static))
+                .Select(x => new { Method = x, DbFunction = x.GetCustomAttribute<DbFunctionAttribute>() })
+                .Where(x => x.DbFunction != null)
+                .Select(x => CreateComposableEdmFunction(x.Method, x.DbFunction))
+                .ToList()
+                .AsReadOnly();
 
-            functions.AddRange(
-                typeof(NpgsqlTextFunctions).GetTypeInfo()
-                    .GetMethods(BindingFlags.Public | BindingFlags.Static)
-                    .Select(x => new { Method = x, DbFunction = x.GetCustomAttribute<DbFunctionAttribute>() })
-                    .Where(x => x.DbFunction != null)
-                    .Select(x => CreateFullTextEdmFunction(x.Method, x.DbFunction)));
-
-            return functions.AsReadOnly();
-        }
-
-        private static EdmFunction CreateFullTextEdmFunction(MethodInfo method, DbFunctionAttribute dbFunctionInfo)
+        static EdmFunction CreateComposableEdmFunction(MethodInfo method, DbFunctionAttribute dbFunctionInfo)
         {
             if (method == null) throw new ArgumentNullException("method");
             if (dbFunctionInfo == null) throw new ArgumentNullException("dbFunctionInfo");
