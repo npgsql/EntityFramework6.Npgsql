@@ -183,7 +183,7 @@ namespace Npgsql
                 Pooling = false
             };
 
-            using (var masterConnection = new NpgsqlConnection(connectionBuilder.ConnectionString))
+            using (var masterConnection = connection.CloneWith(connectionBuilder.ConnectionString))
             {
                 masterConnection.Open();//using's Dispose will close it even if exception...
                 action(masterConnection);
