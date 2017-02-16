@@ -32,3 +32,61 @@ In PostgreSQL, this implicitly uses `template1` as the template - anything exist
 be copied to your new database. If you wish to change the database used as a template, you can specify
 the `EF Template Database` connection string parameter. For more info see the
 [PostgreSQL docs](https://www.postgresql.org/docs/current/static/sql-createdatabase.html).
+
+## Customizing DataReader Behavior ##
+
+You can use [an Entity Framework 6 IDbCommandInterceptor](https://msdn.microsoft.com/en-us/library/dn469464(v=vs.113).aspx) to wrap the `DataReader` instance returned by Npgsql when Entity Framework executes queries. This is possible using a ```DbConfiguration``` class.
+
+Example use cases:
+- Forcing all returned ```DateTime``` and ```DateTimeOffset``` values to be in the UTC timezone.
+- Preventing accidental insertion of DateTime values having ```DateTimeKind.Unspecified```.
+- Forcing all postgres date/time types to be returned to Entity Framework as ```DateTimeOffset```.
+
+```c#
+[DbConfigurationType(typeof(AppDbContextConfiguration))]
+public class AppDbContext : DbContext
+{
+    // ...
+}
+
+public class AppDbContextConfiguration : DbConfiguration
+{
+    public AppDbContextConfiguration()
+    {
+        this.AddInterceptor(new MyEntityFrameworkInterceptor());
+    }
+}
+
+class MyEntityFrameworkInterceptor : DbCommandInterceptor
+{
+    public override void ReaderExecuted(
+        DbCommand command,
+        DbCommandInterceptionContext<DbDataReader> interceptionContext)
+    {
+        if (interceptionContext.Result == null) return;
+        interceptionContext.Result = new WrappingDbDataReader(interceptionContext.Result);
+    }
+
+    public override void ScalarExecuted(
+        DbCommand command,
+        DbCommandInterceptionContext<object> interceptionContext)
+    {
+        interceptionContext.Result = ModifyReturnValues(interceptionContext.Result);
+    }
+    
+    static object ModifyReturnValues(object result)
+    {
+        // Transform and then
+        return result;
+    }
+}
+
+class WrappingDbDataReader : DbDataReader, IDataReader
+{
+    // Wrap an existing DbDataReader, proxy all calls to the underlying instance, 
+    // modify return values and/or parameters as needed...
+    public WrappingDbDataReader(DbDataReader reader)
+    {
+    }
+}
+```
