@@ -42,6 +42,8 @@ Example use cases:
 - Preventing accidental insertion of DateTime values having ```DateTimeKind.Unspecified```.
 - Forcing all postgres date/time types to be returned to Entity Framework as ```DateTimeOffset```.
 
+[Here is an example of a fully implemented EF6 interceptor](sample-interceptor.md)
+
 ```c#
 [DbConfigurationType(typeof(AppDbContextConfiguration))]
 public class AppDbContext : DbContext
