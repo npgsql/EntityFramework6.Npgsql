@@ -509,10 +509,10 @@ namespace Npgsql
         {
             if (String.IsNullOrEmpty(identifier))
             {
-                throw new ArgumentNullException(nameof(identifier));
+                throw new ArgumentException("Value cannot be null or empty", nameof(identifier));
             }
 
-            if(identifier[identifier.Length - 1] == '"' && identifier[0] == '"')
+            if (identifier[identifier.Length - 1] == '"' && identifier[0] == '"')
             {
                 builder.Append(identifier);
             }
@@ -533,7 +533,7 @@ namespace Npgsql
         {
             if (String.IsNullOrEmpty(identifier))
             {
-                throw new ArgumentNullException(nameof(identifier));
+                throw new ArgumentException("Value cannot be null or empty", nameof(identifier));
             }
 
             if (identifier[identifier.Length - 1] == '"' && identifier[0] == '"')
