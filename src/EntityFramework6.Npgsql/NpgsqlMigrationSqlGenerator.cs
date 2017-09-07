@@ -585,14 +585,6 @@ namespace Npgsql
                     break;
                 }
             }
-            else if (column.IsNullable != null
-                && !column.IsNullable.Value
-                && (column.StoreType == null ||
-                (column.StoreType.IndexOf("rowversion", StringComparison.OrdinalIgnoreCase) == -1)))
-            {
-                sql.Append(" DEFAULT ");
-                AppendValue(column.ClrDefaultValue, sql);
-            }
         }
 
         void AppendColumnType(ColumnModel column, StringBuilder sql, bool setSerial)
