@@ -151,13 +151,13 @@ namespace EntityFramework6.Npgsql.Tests
                                     expectedColumns.Remove((string)reader[0]);
                                     Assert.AreEqual("integer", (string)reader[1]);
                                     Assert.AreEqual("NO", (string)reader[2]);
-                                    Assert.AreEqual("0", (string)reader[3]);
+                                    Assert.That(string.IsNullOrEmpty(reader[3] as string));
                                     break;
                                 case "UniqueId":
                                     expectedColumns.Remove((string)reader[0]);
                                     Assert.AreEqual("uuid", (string)reader[1]);
                                     Assert.AreEqual("NO", (string)reader[2]);
-                                    Assert.AreEqual("'00000000-0000-0000-0000-000000000000'::uuid", reader[3] as string);
+                                    Assert.That(string.IsNullOrEmpty(reader[3] as string));
                                     //Assert.AreEqual("uuid_generate_v4()", reader[3] as string);
                                     break;
                                 case "Rating":
@@ -358,7 +358,7 @@ namespace EntityFramework6.Npgsql.Tests
                 Assert.AreEqual("CREATE SCHEMA IF NOT EXISTS someSchema", statments.ElementAt(0).Sql);
             else
                 Assert.AreEqual("CREATE SCHEMA someSchema", statments.ElementAt(0).Sql);
-            Assert.AreEqual("CREATE TABLE \"someSchema\".\"someTable\"(\"SomeString\" varchar(233) NOT NULL DEFAULT '',\"AnotherString\" text,\"SomeBytes\" bytea,\"SomeLong\" serial8,\"SomeDateTime\" timestamp)", statments.ElementAt(1).Sql);
+            Assert.AreEqual("CREATE TABLE \"someSchema\".\"someTable\"(\"SomeString\" varchar(233) NOT NULL,\"AnotherString\" text,\"SomeBytes\" bytea,\"SomeLong\" serial8,\"SomeDateTime\" timestamp)", statments.ElementAt(1).Sql);
         }
 
         [Test]
