@@ -553,12 +553,29 @@ namespace Npgsql.SqlGenerators
             ScanExpression scan;
             var overrideSchema = "http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator:Schema";
             if (expression.Target.MetadataProperties.TryGetValue(overrideSchema, false, out metadata) && metadata.Value != null)
-                scan = new ScanExpression(QuoteIdentifier(metadata.Value.ToString()) + "." + QuoteIdentifier(tableName), expression.Target);
+            {
+                var schema = metadata.Value.ToString();
+                if (schema == string.Empty)
+                    scan = new ScanExpression(QuoteIdentifier(tableName), expression.Target);
+                else
+                    scan = new ScanExpression(QuoteIdentifier(schema) + "." + QuoteIdentifier(tableName), expression.Target);
+            }
             else if (expression.Target.MetadataProperties.TryGetValue("Schema", false, out metadata) && metadata.Value != null)
-                scan = new ScanExpression(QuoteIdentifier(metadata.Value.ToString()) + "." + QuoteIdentifier(tableName), expression.Target);
+            {
+                var schema = metadata.Value.ToString();
+                if (schema == string.Empty)
+                    scan = new ScanExpression(QuoteIdentifier(tableName), expression.Target);
+                else
+                    scan = new ScanExpression(QuoteIdentifier(schema) + "." + QuoteIdentifier(tableName), expression.Target);
+            }
             else
-                scan = new ScanExpression(QuoteIdentifier(expression.Target.EntityContainer.Name) + "." + QuoteIdentifier(tableName), expression.Target);
-
+            {
+                if (expression.Target.EntityContainer.Name == string.Empty)
+                    scan = new ScanExpression(QuoteIdentifier(tableName), expression.Target);
+                else
+                    scan = new ScanExpression(QuoteIdentifier(expression.Target.EntityContainer.Name) + "." + QuoteIdentifier(tableName), expression.Target);
+            }
+            
             return scan;
         }
 
