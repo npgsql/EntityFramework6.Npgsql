@@ -83,6 +83,27 @@ namespace EntityFramework6.Npgsql.Tests
         }
 
         [Test]
+        public void InsertAndSelectSchemaless()
+        {
+            using (var context = new BloggingContext(ConnectionString))
+            {
+                context.Database.Delete();
+                context.Database.Create();
+            }
+
+            using (var context = new BloggingContext(ConnectionString))
+            {
+                context.NoColumnsEntities.Add(new NoColumnsEntity());
+                context.SaveChanges();
+            }
+
+            using (var context = new BloggingContext(ConnectionString))
+            {
+                Assert.AreEqual(1, context.NoColumnsEntities.Count());
+            }
+        }
+
+        [Test]
         public void SelectWithWhere()
         {
             using (var context = new BloggingContext(ConnectionString))
@@ -621,8 +642,8 @@ namespace EntityFramework6.Npgsql.Tests
                 CollectionAssert.AreEqual(localChangedIds, remoteChangedIds);
             }
         }
-		
-		[Test]
+        
+        [Test]
         public void TestScalarValuedStoredFunctions_with_null_StoreFunctionName()
         {
             using (var context = new BloggingContext(ConnectionString))
