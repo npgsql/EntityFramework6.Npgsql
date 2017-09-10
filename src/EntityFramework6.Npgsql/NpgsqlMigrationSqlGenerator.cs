@@ -202,11 +202,11 @@ namespace Npgsql
                 return;
             _addedSchemas.Add(schemaName);
             if (_serverVersion.Major > 9 || (_serverVersion.Major == 9 && _serverVersion.Minor >= 3))
-                AddStatment("CREATE SCHEMA IF NOT EXISTS " + schemaName);
+                AddStatment("CREATE SCHEMA IF NOT EXISTS " + QuoteIdentifier(schemaName));
             else
             {
                 //TODO: CREATE PROCEDURE that checks if schema already exists on servers < 9.3
-                AddStatment("CREATE SCHEMA " + schemaName);
+                AddStatment("CREATE SCHEMA " + QuoteIdentifier(schemaName));
             }
         }
 
@@ -230,7 +230,7 @@ namespace Npgsql
             sql.Append("ALTER TABLE ");
             AppendTableName(moveTableOperation.Name, sql);
             sql.Append(" SET SCHEMA ");
-            sql.Append(newSchema);
+            AppendQuotedIdentifier(newSchema, sql);
             AddStatment(sql);
         }
 
@@ -499,6 +499,53 @@ namespace Npgsql
 
         #region Misc functions
 
+        /// <summary>
+        /// Quotes an identifier for Postgres SQL and appends it to a <see cref="StringBuilder" />
+        /// </summary>
+        /// <param name="identifier">The identifier to be quoted.</param>
+        /// <param name="builder">The <see cref="StringBuilder"/> used for building the query.</param>
+        /// <returns>The quoted identifier.</returns>
+        void AppendQuotedIdentifier(string identifier, StringBuilder builder)
+        {
+            if (String.IsNullOrEmpty(identifier))
+            {
+                throw new ArgumentException("Value cannot be null or empty", nameof(identifier));
+            }
+
+            if (identifier[identifier.Length - 1] == '"' && identifier[0] == '"')
+            {
+                builder.Append(identifier);
+            }
+            else
+            {
+                builder.Append('"');
+                builder.Append(identifier);
+                builder.Append('"');
+            }
+        }
+
+        /// <summary>
+        /// Quotes an identifier for Postgres SQL
+        /// </summary>
+        /// <param name="identifier">The identifier to be quoted.</param>
+        /// <returns>The quoted identifier.</returns>
+        string QuoteIdentifier(string identifier)
+        {
+            if (String.IsNullOrEmpty(identifier))
+            {
+                throw new ArgumentException("Value cannot be null or empty", nameof(identifier));
+            }
+
+            if (identifier[identifier.Length - 1] == '"' && identifier[0] == '"')
+            {
+                return identifier;
+            }
+            else
+            {
+                return '"' + identifier + '"';
+            }
+        }
+
         void AppendColumn(ColumnModel column, StringBuilder sql)
         {
             sql.Append('"');
@@ -689,17 +736,13 @@ namespace Npgsql
             var dotIndex = tableName.IndexOf('.');
             if (dotIndex == -1)
             {
-                sql.Append('"');
-                sql.Append(tableName);
-                sql.Append('"');
+                AppendQuotedIdentifier(tableName, sql);
             }
             else
             {
-                sql.Append('"');
-                sql.Append(tableName.Remove(dotIndex));
-                sql.Append("\".\"");
-                sql.Append(tableName.Substring(dotIndex + 1));
-                sql.Append('"');
+                AppendQuotedIdentifier(tableName.Remove(dotIndex), sql);
+                sql.Append('.');
+                AppendQuotedIdentifier(tableName.Substring(dotIndex + 1), sql);
             }
         }
 
