@@ -177,6 +177,91 @@ namespace EntityFramework6.Npgsql.Tests
                         Assert.Fail("Column '" + columnName + "' was not created in Posts table.");
                     }
                 }
+
+                using (var command = db.Database.Connection.CreateCommand())
+                {
+                    command.CommandText = "select column_name, data_type, is_nullable, column_default from information_schema.columns where table_name = 'PostStatistics';";
+                    List<string> expectedColumns = new List<string>(new string[] { "Id", "Post_PostId", "Date", "Views" });
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            Console.WriteLine((string)reader[0] + " " + (string)reader[1] + " " + (string)reader[2] + " " + (reader[3] ?? "").ToString());
+                            switch ((string)reader[0])
+                            {
+                                case "Id":
+                                    expectedColumns.Remove((string)reader[0]);
+                                    Assert.AreEqual("integer", (string)reader[1]);
+                                    Assert.AreEqual("NO", (string)reader[2]);
+                                    Assert.AreEqual("nextval('dbo.\"PostStatistics_Id_seq\"'::regclass)", (string)reader[3]);
+                                    break;
+                                case "Post_PostId":
+                                    expectedColumns.Remove((string)reader[0]);
+                                    Assert.AreEqual("integer", (string)reader[1]);
+                                    Assert.AreEqual("YES", (string)reader[2]);
+                                    break;
+                                case "Date":
+                                    expectedColumns.Remove((string)reader[0]);
+                                    Assert.AreEqual("timestamp without time zone", (string)reader[1]);
+                                    Assert.AreEqual("NO", (string)reader[2]);
+                                    break;
+                                case "Views":
+                                    expectedColumns.Remove((string)reader[0]);
+                                    Assert.AreEqual("integer", (string)reader[1]);
+                                    Assert.AreEqual("NO", (string)reader[2]);
+                                    break;
+                                default:
+                                    Assert.Fail("Unknown column '" + (string)reader[0] + "' in PostStatistics table.");
+                                    break;
+                            }
+                        }
+                    }
+                    foreach (var columnName in expectedColumns)
+                    {
+                        Assert.Fail("Column '" + columnName + "' was not created in PostStatistics table.");
+                    }
+                }
+
+                // Check if indexes are correctly created. These won't show up in the information_schema as they were not part of a CREATE TABLE statement.
+                // So we make use of pg_catalog.
+                using (var command = db.Database.Connection.CreateCommand())
+                {
+                    command.CommandText = @"select c.relname AS indexname,
+t.relname AS tablename,
+i.*
+from pg_index i
+join pg_class c ON i.indexrelid = c.oid
+join pg_class t ON i.indrelid = t.oid
+where t.relname = 'PostStatistics'";
+                    List<string> expectedIndexes = new List<string>(new string[] { "PK_dbo.PostStatistics", "PostStatistics_IX_Post_PostId", "PostStatistics_PostDate_Unique_Idx" });
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            switch ((string)reader[0])
+                            {
+                                case "PostStatistics_PostDate_Unique_Idx":
+                                    expectedIndexes.Remove((string)reader[0]);
+                                    Assert.AreEqual(new Int16[] { 2, 4 }, reader["indkey"]);
+                                    Assert.AreEqual(true, reader["indisunique"]);
+                                    break;
+                                case "PK_dbo.PostStatistics":
+                                    expectedIndexes.Remove((string)reader[0]);
+                                    break;
+                                case "PostStatistics_IX_Post_PostId":
+                                    expectedIndexes.Remove((string)reader[0]);
+                                    break;
+                                default:
+                                    Assert.Fail("Unknown index '" + (string)reader[0] + "' in PostStatistics table.");
+                                    break;
+                            }
+                        }
+                    }
+                    foreach (var columnName in expectedIndexes)
+                    {
+                        Assert.Fail("Index '" + columnName + "' was not created in PostStatistics table.");
+                    }
+                }
             }
         }
 
@@ -204,6 +289,19 @@ namespace EntityFramework6.Npgsql.Tests
             public virtual Blog Blog { get; set; }
         }
 
+        public class PostStatistic
+        {
+            [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+            public int Id { get; set; }
+
+            [Index("PostDate_Unique_Idx", 1, IsUnique = true)]
+            public virtual Post Post { get; set; }
+
+            [Index("PostDate_Unique_Idx", 2, IsUnique = true)]
+            public DateTime Date { get; set; }
+            public int Views { get; set; }
+        }
+
         public class BloggingContext : DbContext
         {
             public BloggingContext(DbConnection connection)
@@ -213,6 +311,7 @@ namespace EntityFramework6.Npgsql.Tests
 
             public DbSet<Blog> Blogs { get; set; }
             public DbSet<Post> Posts { get; set; }
+            public DbSet<PostStatistic> PostStatistics { get; set; }
         }
 
         #endregion
