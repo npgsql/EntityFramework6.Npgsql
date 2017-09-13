@@ -162,7 +162,8 @@ namespace Npgsql
                     return TypeUsage.CreateStringTypeUsage(primitiveType, isUnicode, false);
             case "text":
             case "xml":
-                return TypeUsage.CreateStringTypeUsage(primitiveType, isUnicode, false);
+            case "citext":
+                    return TypeUsage.CreateStringTypeUsage(primitiveType, isUnicode, false);
             case "timestamp":
                 // TODO: make sure the arguments are correct here
                 if (storeType.Facets.TryGetValue(PrecisionFacet, false, out facet) &&
