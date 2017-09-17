@@ -573,7 +573,7 @@ namespace Npgsql.SqlGenerators
                     ? new ScanExpression(QuoteIdentifier(tableName), expression.Target)
                     : new ScanExpression(QuoteIdentifier(schema) + "." + QuoteIdentifier(tableName), expression.Target);
             }
-            
+
             return scan;
         }
 

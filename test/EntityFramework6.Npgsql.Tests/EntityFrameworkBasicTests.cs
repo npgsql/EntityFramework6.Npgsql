@@ -642,7 +642,7 @@ namespace EntityFramework6.Npgsql.Tests
                 CollectionAssert.AreEqual(localChangedIds, remoteChangedIds);
             }
         }
-        
+
         [Test]
         public void TestScalarValuedStoredFunctions_with_null_StoreFunctionName()
         {
