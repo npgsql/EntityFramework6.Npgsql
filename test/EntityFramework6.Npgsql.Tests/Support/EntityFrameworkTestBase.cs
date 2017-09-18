@@ -73,6 +73,7 @@ namespace EntityFramework6.Npgsql.Tests
             {
                 context.Blogs.RemoveRange(context.Blogs);
                 context.Posts.RemoveRange(context.Posts);
+                context.NoColumnsEntities.RemoveRange(context.NoColumnsEntities);
                 context.SaveChanges();
             }
         }

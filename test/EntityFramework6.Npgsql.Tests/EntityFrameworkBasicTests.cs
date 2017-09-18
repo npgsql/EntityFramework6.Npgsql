@@ -87,12 +87,6 @@ namespace EntityFramework6.Npgsql.Tests
         {
             using (var context = new BloggingContext(ConnectionString))
             {
-                context.Database.Delete();
-                context.Database.Create();
-            }
-
-            using (var context = new BloggingContext(ConnectionString))
-            {
                 context.NoColumnsEntities.Add(new NoColumnsEntity());
                 context.SaveChanges();
             }
