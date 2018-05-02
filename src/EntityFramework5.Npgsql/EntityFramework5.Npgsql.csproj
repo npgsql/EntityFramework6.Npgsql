@@ -63,6 +63,8 @@
     <Compile Include="..\EntityFramework6.Npgsql\Properties\AssemblyInfo.cs" />
     <Compile Include="..\EntityFramework6.Npgsql\Spatial\PostgisDataReader.cs" />
     <Compile Include="..\EntityFramework6.Npgsql\Spatial\PostgisServices.cs" />
+    <Compile Include="..\EntityFramework6.Npgsql\SqlGenerators\CaseIsNullToCoalesceReducer.cs" />
+    <Compile Include="..\EntityFramework6.Npgsql\SqlGenerators\DbExpressionDeepEqual.cs" />
     <Compile Include="..\EntityFramework6.Npgsql\SqlGenerators\PendingProjectsNode.cs" />
     <Compile Include="..\EntityFramework6.Npgsql\SqlGenerators\SqlBaseGenerator.cs" />
     <Compile Include="..\EntityFramework6.Npgsql\SqlGenerators\SqlDeleteGenerator.cs" />

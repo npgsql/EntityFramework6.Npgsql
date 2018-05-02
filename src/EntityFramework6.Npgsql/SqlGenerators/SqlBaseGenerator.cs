@@ -829,6 +829,16 @@ namespace Npgsql.SqlGenerators
 
         public override VisitedExpression Visit([NotNull] DbCaseExpression expression)
         {
+            var result = CaseIsNullToCoalesceReducer.TransformCoalesce(expression);
+            if (result is DbCaseExpression case2)
+            {
+                expression = case2;
+            }
+            else
+            {
+                return result.Accept(this);
+            }
+
             var caseExpression = new LiteralExpression(" CASE ");
             for (var i = 0; i < expression.When.Count && i < expression.Then.Count; ++i)
             {
@@ -1191,6 +1201,12 @@ namespace Npgsql.SqlGenerators
                         throw new NotSupportedException("cast type name argument must be a constant expression.");
 
                     return new CastExpression(args[0].Accept(this), typeNameExpression.Value.ToString());
+                }else if (functionName == "coalesce")
+                {
+                    var coalesceFuncCall = new FunctionExpression("coalesce");
+                    foreach (var a in args)
+                        coalesceFuncCall.AddArgument(a.Accept(this));
+                    return coalesceFuncCall;
                 }
             }
 

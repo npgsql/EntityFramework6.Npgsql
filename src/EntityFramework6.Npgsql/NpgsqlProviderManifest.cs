@@ -359,7 +359,7 @@ namespace Npgsql
                 .ToList()
                 .AsReadOnly();
 
-        static EdmFunction CreateComposableEdmFunction([NotNull] MethodInfo method, [NotNull] DbFunctionAttribute dbFunctionInfo)
+        internal static EdmFunction CreateComposableEdmFunction([NotNull] MethodInfo method, [NotNull] DbFunctionAttribute dbFunctionInfo)
         {
             if (method == null)
                 throw new ArgumentNullException(nameof(method));
