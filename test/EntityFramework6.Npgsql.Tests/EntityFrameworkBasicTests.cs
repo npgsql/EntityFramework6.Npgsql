@@ -736,6 +736,69 @@ namespace EntityFramework6.Npgsql.Tests
         }
 
         [Test]
+        public void Test_issue_60_and_62()
+        {
+            using (var context = new BloggingContext(ConnectionString))
+            {
+                context.Database.Log = Console.Out.WriteLine;
+
+                context.Blogs.Add( new Blog { Name = "Hello" });
+                context.SaveChanges();
+
+                string string_value = "string_value";
+                var query = context.Blogs.Select(b => string_value + "_postfijo").Take(1);
+                var blog_title = query.First();
+                Assert.That(blog_title, Is.EqualTo("string_value_postfijo"));
+                StringAssert.DoesNotContain("case", query.ToString().ToLower() );
+            }
+        }
+
+        [Test]
+        public void TestNullPropagation_1()
+        {
+            using (var context = new BloggingContext(ConnectionString))
+            {
+                context.Database.Log = Console.Out.WriteLine;
+
+                context.Blogs.Add( new Blog { Name = "Hello" });
+                context.SaveChanges();
+
+                string valor_string = "string_value";
+                var query = context.Blogs.Select(b =>  (valor_string ?? "otro_valor") + "_postfijo").Take(1);
+                var blog_title = query.First();
+                Assert.That(blog_title, Is.EqualTo("string_value_postfijo"));
+
+                var query_sql = query.ToString().ToLower();
+                StringAssert.DoesNotContain("case", query.ToString().ToLower() );
+                StringAssert.Contains("coalesce(@p__linq__0,e'otro_valor',e'')", query_sql);
+            }
+        }
+
+        [Test]
+        public void TestNullPropagation_2()
+        {
+            using (var context = new BloggingContext(ConnectionString))
+            {
+                context.Database.Log = Console.Out.WriteLine;
+
+                context.Blogs.Add( new Blog { Name = "Hello" });
+                context.SaveChanges();
+
+                string string_value1 = "string_value1";
+                string string_value2 = "string_value2";
+                string string_value3 = "string_value3";
+
+                var query = context.Blogs.Select(b =>  (string_value1 ?? string_value2 ?? string_value3) + "_postfijo").Take(1);
+                var blog_title = query.First();
+                Assert.That(blog_title, Is.EqualTo("string_value1_postfijo"));
+
+                var query_sql = query.ToString().ToLower();
+                StringAssert.DoesNotContain("case", query_sql );
+                StringAssert.Contains("coalesce(@p__linq__0,@p__linq__1,@p__linq__2,e'')", query_sql);
+            }
+        }
+
+        [Test]
         public void TestTableValuedStoredFunctions()
         {
             using (var context = new BloggingContext(ConnectionString))
