@@ -371,6 +371,29 @@ namespace Npgsql
         }
 
         /// <summary>
+        /// Returns a tsquery that searches for a match to <paramref name="query1" /> followed by a match
+        /// to <paramref name="query2" />.
+        /// https://www.postgresql.org/docs/current/static/textsearch-features.html#TEXTSEARCH-MANIPULATE-TSQUERY
+        /// </summary>
+        [DbFunction("Npgsql", "tsquery_phrase")]
+        public static string TsQueryPhrase(string query1, string query2)
+        {
+            throw new NotSupportedException();
+        }
+
+        /// <summary>
+        /// Returns a tsquery that searches for a match to <paramref name="query1" /> followed by a match
+        /// to <paramref name="query2" /> at a distance of <paramref name="distance" /> lexemes using 
+        /// the &lt;N&gt; tsquery operator
+        /// https://www.postgresql.org/docs/current/static/textsearch-features.html#TEXTSEARCH-MANIPULATE-TSQUERY
+        /// </summary>
+        [DbFunction("Npgsql", "tsquery_phrase")]
+        public static string TsQueryPhrase(string query1, string query2, int distance)
+        {
+            throw new NotSupportedException();
+        }
+
+        /// <summary>
         /// Matches regular expression. Generates the "~" operator.
         /// http://www.postgresql.org/docs/current/static/functions-matching.html#FUNCTIONS-POSIX-REGEXP
         /// This method follows the semantics of <see cref="Regex.IsMatch(string, string)"/>

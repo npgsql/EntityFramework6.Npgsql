@@ -602,5 +602,31 @@ namespace EntityFramework6.Npgsql.Tests
                     Is.EqualTo(NpgsqlTsQuery.Parse("'b' & ( 'foo' | 'bar' )").ToString()));
             }
         }
+
+        [Test]
+        public void TsQueryPhrase()
+        {
+            using (var context = new BloggingContext(ConnectionString))
+            {
+                context.Database.Log = Console.Out.WriteLine;
+
+                var blog1 = new Blog
+                {
+                    Name = "_"
+                };
+                context.Blogs.Add(blog1);
+                context.SaveChanges();
+
+                var newQuery = context
+                    .Blogs.Select(x => NpgsqlTextFunctions.TsQueryPhrase("b", "c"))
+                    .FirstOrDefault();
+                Assert.That(newQuery, Is.EqualTo("'b' <-> 'c'"));
+
+                newQuery = context
+                    .Blogs.Select(x => NpgsqlTextFunctions.TsQueryPhrase("b", "c", 10))
+                    .FirstOrDefault();
+                Assert.That(newQuery, Is.EqualTo("'b' <10> 'c'"));
+            }
+        }
     }
 }
