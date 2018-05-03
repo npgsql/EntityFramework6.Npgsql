@@ -772,5 +772,67 @@ namespace EntityFramework6.Npgsql.Tests
                 Assert.AreEqual(1, list2[0].Something);
             }
         }
+
+        [Test]
+        public void Test_issue_60_and_62()
+        {
+            using (var context = new BloggingContext(ConnectionString))
+            {
+                context.Database.Log = Console.Out.WriteLine;
+
+                context.Blogs.Add( new Blog { Name = "Hello" });
+                context.SaveChanges();
+
+                string stringValue = "string_value";
+                var query = context.Blogs.Select(b => stringValue + "_postfix");
+                var blogTitle = query.First();
+                Assert.That(blogTitle, Is.EqualTo("string_value_postfix"));
+                Console.WriteLine(query.ToString());
+                StringAssert.AreEqualIgnoringCase("SELECT  COALESCE( @p__linq__0,E'')  || E'_postfix' AS \"C1\" FROM \"dbo\".\"Blogs\" AS \"Extent1\"", query.ToString());
+            }
+        }
+
+        [Test]
+        public void TestNullPropagation_1()
+        {
+            using (var context = new BloggingContext(ConnectionString))
+            {
+                context.Database.Log = Console.Out.WriteLine;
+
+                context.Blogs.Add( new Blog { Name = "Hello" });
+                context.SaveChanges();
+
+                string stringValue = "string_value";
+                var query = context.Blogs.Select(b =>  (stringValue ?? "default_value") + "_postfix");
+                var blog_title = query.First();
+                Assert.That(blog_title, Is.EqualTo("string_value_postfix"));
+
+                Console.WriteLine(query.ToString());
+                StringAssert.AreEqualIgnoringCase("SELECT  CASE  WHEN ( COALESCE( @p__linq__0,E'default_value')  IS NULL) THEN (E'') WHEN (@p__linq__0 IS NULL) THEN (E'default_value') ELSE (@p__linq__0) END  || E'_postfix' AS \"C1\" FROM \"dbo\".\"Blogs\" AS \"Extent1\"", query.ToString());
+            }
+        }
+
+        [Test]
+        public void TestNullPropagation_2()
+        {
+            using (var context = new BloggingContext(ConnectionString))
+            {
+                context.Database.Log = Console.Out.WriteLine;
+
+                context.Blogs.Add( new Blog { Name = "Hello" });
+                context.SaveChanges();
+
+                string stringValue1 = "string_value1";
+                string stringValue2 = "string_value2";
+                string stringValue3 = "string_value3";
+
+                var query = context.Blogs.Select(b =>  (stringValue1 ?? stringValue2 ?? stringValue3) + "_postfix");
+                var blog_title = query.First();
+                Assert.That(blog_title, Is.EqualTo("string_value1_postfix"));
+
+                Console.WriteLine(query.ToString());
+                StringAssert.AreEqualIgnoringCase("SELECT  CASE  WHEN ( COALESCE( @p__linq__0, COALESCE( @p__linq__1,@p__linq__2) )  IS NULL) THEN (E'') WHEN (@p__linq__0 IS NULL) THEN ( COALESCE( @p__linq__1,@p__linq__2) ) ELSE (@p__linq__0) END  || E'_postfix' AS \"C1\" FROM \"dbo\".\"Blogs\" AS \"Extent1\"", query.ToString());
+            }
+        }
     }
 }
