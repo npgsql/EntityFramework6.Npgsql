@@ -33,6 +33,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity.Core.Metadata.Edm;
 using System.Data.Entity.Core.Objects;
 using System.Data.Entity.Infrastructure;
+using System.Diagnostics.CodeAnalysis;
 using NpgsqlTypes;
 
 namespace EntityFramework6.Npgsql.Tests
@@ -770,6 +771,80 @@ namespace EntityFramework6.Npgsql.Tests
                 Assert.AreEqual(1, list2.Count);
                 Assert.AreEqual("Some blog1 name", list2[0].Name);
                 Assert.AreEqual(1, list2[0].Something);
+            }
+        }
+
+        [Test]
+        public void Test_string_type_inference_in_coalesce_statements()
+        {
+            using (var context = new BloggingContext(ConnectionString))
+            {
+                context.Database.Log = Console.Out.WriteLine;
+
+                context.Blogs.Add(new Blog { Name = "Hello" });
+                context.SaveChanges();
+
+                string stringValue = "string_value";
+                var query = context.Blogs.Select(b => stringValue + "_postfix");
+                var blogTitle = query.First();
+                Assert.That(blogTitle, Is.EqualTo("string_value_postfix"));
+                Console.WriteLine(query.ToString());
+                StringAssert.AreEqualIgnoringCase(
+                    "SELECT COALESCE(@p__linq__0,E'') || E'_postfix' AS \"C1\" FROM \"dbo\".\"Blogs\" AS \"Extent1\"",
+                    query.ToString());
+            }
+        }
+
+        [Test]
+        [SuppressMessage("ReSharper", "ConstantNullCoalescingCondition")]
+        public void Test_string_null_propagation()
+        {
+            using (var context = new BloggingContext(ConnectionString))
+            {
+                context.Database.Log = Console.Out.WriteLine;
+
+                context.Blogs.Add(new Blog { Name = "Hello" });
+                context.SaveChanges();
+
+                string stringValue = "string_value";
+                var query = context.Blogs.Select(b => (stringValue ?? "default_value") + "_postfix");
+                var blog_title = query.First();
+                Assert.That(blog_title, Is.EqualTo("string_value_postfix"));
+
+                Console.WriteLine(query.ToString());
+                StringAssert.AreEqualIgnoringCase(
+                    "SELECT  CASE  WHEN (COALESCE(@p__linq__0,E'default_value') IS NULL) THEN (E'')"
+                    + " WHEN (@p__linq__0 IS NULL) THEN (E'default_value') ELSE (@p__linq__0) END  ||"
+                    + " E'_postfix' AS \"C1\" FROM \"dbo\".\"Blogs\" AS \"Extent1\"",
+                    query.ToString());
+            }
+        }
+
+        [Test]
+        [SuppressMessage("ReSharper", "ConstantNullCoalescingCondition")]
+        public void Test_string_multiple_null_propagation()
+        {
+            using (var context = new BloggingContext(ConnectionString))
+            {
+                context.Database.Log = Console.Out.WriteLine;
+
+                context.Blogs.Add(new Blog { Name = "Hello" });
+                context.SaveChanges();
+
+                string stringValue1 = "string_value1";
+                string stringValue2 = "string_value2";
+                string stringValue3 = "string_value3";
+
+                var query = context.Blogs.Select(b => (stringValue1 ?? stringValue2 ?? stringValue3) + "_postfix");
+                var blog_title = query.First();
+                Assert.That(blog_title, Is.EqualTo("string_value1_postfix"));
+
+                Console.WriteLine(query.ToString());
+                StringAssert.AreEqualIgnoringCase(
+                    "SELECT  CASE  WHEN (COALESCE(@p__linq__0,COALESCE(@p__linq__1,@p__linq__2)) IS NULL)"
+                    + " THEN (E'') WHEN (@p__linq__0 IS NULL) THEN (COALESCE(@p__linq__1,@p__linq__2)) ELSE"
+                    + " (@p__linq__0) END  || E'_postfix' AS \"C1\" FROM \"dbo\".\"Blogs\" AS \"Extent1\"",
+                    query.ToString());
             }
         }
     }

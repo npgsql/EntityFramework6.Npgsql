@@ -829,6 +829,23 @@ namespace Npgsql.SqlGenerators
 
         public override VisitedExpression Visit([NotNull] DbCaseExpression expression)
         {
+            // Check for COALESCE like CASE
+            if (expression.When.Count == 1 &&
+                expression.When[0].ExpressionKind == DbExpressionKind.IsNull)
+            {
+                var isNullExpression = (DbIsNullExpression)expression.When[0];
+                if (isNullExpression.Argument.Equals(expression.Else))
+                {
+                    var coalesceExpression = new LiteralExpression("COALESCE(");
+                    coalesceExpression.Append(expression.Else.Accept(this));
+                    coalesceExpression.Append(",");
+                    coalesceExpression.Append(expression.Then[0].Accept(this));
+                    coalesceExpression.Append(")");
+                    return coalesceExpression;
+                }
+            }
+
+            // General CASE
             var caseExpression = new LiteralExpression(" CASE ");
             for (var i = 0; i < expression.When.Count && i < expression.Then.Count; ++i)
             {
