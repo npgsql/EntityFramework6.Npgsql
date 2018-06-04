@@ -1111,7 +1111,9 @@ namespace Npgsql.SqlGenerators
                     return new FunctionExpression("uuid_generate_v4");
                 case "TruncateTime":
                     return new TruncateTimeExpression("day", args[0].Accept(this));
-
+                case "CreateTime":
+                     return new MakeTimeExpression(args[0].Accept(this), args[1].Accept(this), args[2].Accept(this));
+                    //return MakeTime(args[0].Accept(this), args[1].Accept(this), args[2].Accept(this));
                 default:
                     throw new NotSupportedException("NotSupported " + function.Name);
                 }
@@ -1301,6 +1303,17 @@ namespace Npgsql.SqlGenerators
             substring.AddArgument(source);
             substring.AddArgument(start);
             substring.AddArgument(count);
+            return substring;
+        }
+
+        //hour int, min int, sec double precision
+        VisitedExpression MakeTime(VisitedExpression hour, VisitedExpression min, VisitedExpression sec)
+        {
+            var substring = new FunctionExpression("make_interval");
+            //make_interval(hours => 9,minutes=>);
+            substring.AddArgument(hour);
+            substring.AddArgument(min);
+            substring.AddArgument(sec);
             return substring;
         }
 

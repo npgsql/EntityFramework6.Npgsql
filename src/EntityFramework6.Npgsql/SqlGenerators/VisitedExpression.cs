@@ -1108,4 +1108,34 @@ namespace Npgsql.SqlGenerators
             base.WriteSql(sqlText);
         }
     }
+
+    internal class MakeTimeExpression : VisitedExpression
+    {
+        readonly VisitedExpression _hours;
+        readonly VisitedExpression _minutes;
+        readonly VisitedExpression _seconds;
+
+        public MakeTimeExpression(VisitedExpression hours, VisitedExpression minutes, VisitedExpression seconds)
+        {
+            _hours = hours;
+            _minutes = minutes;
+            _seconds = seconds;
+        }
+        
+        internal override void WriteSql(StringBuilder sqlText)
+        {
+            sqlText.Append("make_interval");
+            sqlText.Append("(");
+            sqlText.Append("hours => ");
+            _hours.WriteSql(sqlText);
+            sqlText.Append(",");
+            sqlText.Append("mins => ");
+            _minutes.WriteSql(sqlText);
+            sqlText.Append(",");
+            sqlText.Append("secs => ");
+            _seconds.WriteSql(sqlText);
+            sqlText.Append(")");
+            base.WriteSql(sqlText);
+        }
+    }
 }
