@@ -18,3 +18,4 @@ artifacts/
 *.lock.json
 .build
 TestResult.xml
+.vs/
