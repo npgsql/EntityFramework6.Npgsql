@@ -24,17 +24,11 @@
 using System;
 using System.Text;
 using JetBrains.Annotations;
-#if ENTITIES6
 using System.Data.Entity.Core.Common;
 using System.Data.Entity.Core.Common.CommandTrees;
 using System.Data.Entity.Core.Metadata.Edm;
 using System.Data.Entity.Migrations.Sql;
 using System.Data.Entity.Infrastructure.DependencyResolution;
-#else
-using System.Data.Common;
-using System.Data.Common.CommandTrees;
-using System.Data.Metadata.Edm;
-#endif
 using Npgsql.SqlGenerators;
 using DbConnection = System.Data.Common.DbConnection;
 using DbCommand = System.Data.Common.DbCommand;
@@ -43,21 +37,16 @@ using DbCommand = System.Data.Common.DbCommand;
 
 namespace Npgsql
 {
-#if ENTITIES6
+    [PublicAPI]
     public class NpgsqlServices : DbProviderServices
-#else
-    internal class NpgsqlServices : DbProviderServices
-#endif
     {
         public static NpgsqlServices Instance { get; } = new NpgsqlServices();
 
-#if ENTITIES6
         public NpgsqlServices()
         {
             AddDependencyResolver(new SingletonDependencyResolver<Func<MigrationSqlGenerator>>(
                 () => new NpgsqlMigrationSqlGenerator(), nameof(Npgsql)));
         }
-#endif
 
         protected override DbCommandDefinition CreateDbCommandDefinition([NotNull] DbProviderManifest providerManifest, [NotNull] DbCommandTree commandTree)
             => CreateCommandDefinition(CreateDbCommand(((NpgsqlProviderManifest)providerManifest).Version, commandTree));
@@ -131,7 +120,6 @@ namespace Npgsql
             return new NpgsqlProviderManifest(versionHint);
         }
 
-#if ENTITIES6
         protected override bool DbDatabaseExists([NotNull] DbConnection connection, int? commandTimeout, [NotNull] StoreItemCollection storeItemCollection)
         {
             var exists = false;
@@ -173,7 +161,6 @@ namespace Npgsql
                     command.ExecuteNonQuery();
             });
         }
-#endif
 
         static void UsingPostgresDbConnection(NpgsqlConnection connection, Action<NpgsqlConnection> action)
         {

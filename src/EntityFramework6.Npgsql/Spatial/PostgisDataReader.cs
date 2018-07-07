@@ -1,11 +1,6 @@
 ﻿using System;
 using System.Data;
-
-#if ENTITIES6
 using System.Data.Entity.Spatial;
-#else
-using System.Data.Spatial;
-#endif
 
 namespace Npgsql.Spatial
 {
@@ -65,11 +60,7 @@ namespace Npgsql.Spatial
         /// </summary>
         /// <param name="ordinal"></param>
         /// <returns></returns>
-#if ENTITIES6
         public override bool IsGeometryColumn(int ordinal)
-#else
-        public bool IsGeometryColumn(int ordinal)
-#endif
         {
             return _rdr[ordinal] is NpgsqlTypes.PostgisGeometry;
         }
@@ -79,11 +70,7 @@ namespace Npgsql.Spatial
         /// </summary>
         /// <param name="ordinal"></param>
         /// <returns></returns>
-#if ENTITIES6
         public override bool IsGeographyColumn(int ordinal)
-#else
-        public bool IsGeographyColumn(int ordinal)
-#endif
         {
             throw new NotImplementedException();
         }
@@ -205,8 +192,6 @@ namespace Npgsql.Spatial
         /// <summary>
         /// Gets the name of a column, given a zero based ordinal.
         /// </summary>
-        /// <param name="i"></param>
-        /// <returns></returns>
         public string GetName(int i)
         {
             return _rdr.GetName(i);
@@ -215,30 +200,22 @@ namespace Npgsql.Spatial
         /// <summary>
         /// Gets the data type name of a column, given a zero based ordinal.
         /// </summary>
-        /// <param name="i"></param>
-        /// <returns></returns>
         public string GetDataTypeName(int i)
         {
             return _rdr.GetDataTypeName(i);
         }
 
-
         /// <summary>
         /// Gets the System.Type of a column, given a zero based ordinal.
         /// </summary>
-        /// <param name="i"></param>
-        /// <returns></returns>
         public Type GetFieldType(int i)
         {
             return _rdr.GetFieldType(i);
         }
 
-
         /// <summary>
         /// Gets the value of a column, given a zero based ordinal.
         /// </summary>
-        /// <param name="i"></param>
-        /// <returns></returns>
         public object GetValue(int i)
         {
             return _rdr.GetValue(i);
@@ -247,8 +224,6 @@ namespace Npgsql.Spatial
         /// <summary>
         /// Populates an array of objects with the values of the current row.
         /// </summary>
-        /// <param name="i"></param>
-        /// <returns></returns>
         public int GetValues(object[] values)
         {
             return _rdr.GetValues(values);
@@ -257,19 +232,14 @@ namespace Npgsql.Spatial
         /// <summary>
         /// Gets the column ordinal given the column name.
         /// </summary>
-        /// <param name="name"></param>
-        /// <returns></returns>
         public int GetOrdinal(string name)
         {
             return _rdr.GetOrdinal(name);
         }
 
-
         /// <summary>
         /// Get the value of a column as a boolean, given its zero-based ordinal.
         /// </summary>
-        /// <param name="i"></param>
-        /// <returns></returns>
         public bool GetBoolean(int i)
         {
             return _rdr.GetBoolean(i);
@@ -278,8 +248,6 @@ namespace Npgsql.Spatial
         /// <summary>
         /// Get the value of a column as a byte, given its zero-based ordinal.
         /// </summary>
-        /// <param name="i"></param>
-        /// <returns></returns>
         public byte GetByte(int i)
         {
             return _rdr.GetByte(i);
@@ -288,8 +256,6 @@ namespace Npgsql.Spatial
         /// <summary>
         /// Populates a byte array with the value of a column, given its zero-based ordinal.
         /// </summary>
-        /// <param name="i"></param>
-        /// <returns></returns>
         public long GetBytes(int i, long fieldOffset, byte[] buffer, int bufferoffset, int length)
         {
             return _rdr.GetBytes(i, fieldOffset, buffer, bufferoffset, length);
@@ -298,8 +264,6 @@ namespace Npgsql.Spatial
         /// <summary>
         /// Get the value of a column as a char, given its zero-based ordinal.
         /// </summary>
-        /// <param name="i"></param>
-        /// <returns></returns>
         public char GetChar(int i)
         {
             return _rdr.GetChar(i);
@@ -313,8 +277,6 @@ namespace Npgsql.Spatial
         /// <summary>
         /// Get the value of a column as a GUID, given its zero-based ordinal.
         /// </summary>
-        /// <param name="i"></param>
-        /// <returns></returns>
         public Guid GetGuid(int i)
         {
             return _rdr.GetGuid(i);
@@ -323,8 +285,6 @@ namespace Npgsql.Spatial
         /// <summary>
         /// Get the value of a column as an int16, given its zero-based ordinal.
         /// </summary>
-        /// <param name="i"></param>
-        /// <returns></returns>
         public short GetInt16(int i)
         {
             return _rdr.GetInt16(i);
@@ -333,8 +293,6 @@ namespace Npgsql.Spatial
         /// <summary>
         /// Get the value of a column as an int32, given its zero-based ordinal.
         /// </summary>
-        /// <param name="i"></param>
-        /// <returns></returns>
         public int GetInt32(int i)
         {
             return _rdr.GetInt32(i);
@@ -343,8 +301,6 @@ namespace Npgsql.Spatial
         /// <summary>
         /// Get the value of a column as an int64, given its zero-based ordinal.
         /// </summary>
-        /// <param name="i"></param>
-        /// <returns></returns>
         public long GetInt64(int i)
         {
             return _rdr.GetInt64(i);
@@ -353,8 +309,6 @@ namespace Npgsql.Spatial
         /// <summary>
         /// Get the value of a column as a float, given its zero-based ordinal.
         /// </summary>
-        /// <param name="i"></param>
-        /// <returns></returns>
         public float GetFloat(int i)
         {
             return _rdr.GetFloat(i);
@@ -363,8 +317,6 @@ namespace Npgsql.Spatial
         /// <summary>
         /// Get the value of a column as a double, given its zero-based ordinal.
         /// </summary>
-        /// <param name="i"></param>
-        /// <returns></returns>
         public double GetDouble(int i)
         {
             return _rdr.GetDouble(i);
@@ -373,8 +325,6 @@ namespace Npgsql.Spatial
         /// <summary>
         /// Get the value of a column as a string, given its zero-based ordinal.
         /// </summary>
-        /// <param name="i"></param>
-        /// <returns></returns>
         public string GetString(int i)
         {
             return _rdr.GetString(i);
@@ -383,8 +333,6 @@ namespace Npgsql.Spatial
         /// <summary>
         /// Get the value of a column as a decimal, given its zero-based ordinal.
         /// </summary>
-        /// <param name="i"></param>
-        /// <returns></returns>
         public decimal GetDecimal(int i)
         {
             return _rdr.GetDecimal(i);
@@ -393,8 +341,6 @@ namespace Npgsql.Spatial
         /// <summary>
         /// Get the value of a column as a datetime, given its zero-based ordinal.
         /// </summary>
-        /// <param name="i"></param>
-        /// <returns></returns>
         public DateTime GetDateTime(int i)
         {
             return _rdr.GetDateTime(i);
@@ -403,8 +349,6 @@ namespace Npgsql.Spatial
         /// <summary>
         /// Returns a DbDataReader of a column, given its zero-based ordinal.
         /// </summary>
-        /// <param name="i"></param>
-        /// <returns></returns>
         public IDataReader GetData(int i)
         {
             return _rdr.GetData(i);
@@ -413,8 +357,6 @@ namespace Npgsql.Spatial
         /// <summary>
         /// Get the value indicating wether the column contains non-existent or missing value, given its zero-based ordinal.
         /// </summary>
-        /// <param name="i"></param>
-        /// <returns></returns>
         public bool IsDBNull(int i)
         {
             return _rdr.IsDBNull(i);

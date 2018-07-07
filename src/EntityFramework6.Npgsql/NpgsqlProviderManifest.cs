@@ -24,17 +24,12 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-#if ENTITIES6
 using System.Data.Entity;
 using System.Data.Entity.Core.Common;
 using System.Data.Entity.Core.Metadata.Edm;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
-#else
-using System.Data.Common;
-using System.Data.Metadata.Edm;
-#endif
 using System.Xml;
 using System.Data;
 using JetBrains.Annotations;
@@ -47,10 +42,9 @@ namespace Npgsql
         public Version Version { get; }
 
         public NpgsqlProviderManifest(string serverVersion)
-            : base(CreateXmlReaderForResource("Npgsql.NpgsqlProviderManifest.Manifest.xml"))
+            : base(CreateXmlReaderForResource("Npgsql.Resources.NpgsqlProviderManifest.Manifest.xml"))
         {
-            Version version;
-            Version = Version.TryParse(serverVersion, out version)
+            Version = Version.TryParse(serverVersion, out var version)
                 ? version
                 : new Version(9, 5);
         }
@@ -58,11 +52,11 @@ namespace Npgsql
         protected override XmlReader GetDbInformation([NotNull] string informationType)
         {
             if (informationType == StoreSchemaDefinition)
-                return CreateXmlReaderForResource("Npgsql.NpgsqlSchema.ssdl");
+                return CreateXmlReaderForResource("Npgsql.Resources.NpgsqlSchema.ssdl");
             if (informationType == StoreSchemaDefinitionVersion3)
-                return CreateXmlReaderForResource("Npgsql.NpgsqlSchemaV3.ssdl");
+                return CreateXmlReaderForResource("Npgsql.Resources.NpgsqlSchemaV3.ssdl");
             if (informationType == StoreSchemaMapping)
-                return CreateXmlReaderForResource("Npgsql.NpgsqlSchema.msl");
+                return CreateXmlReaderForResource("Npgsql.Resources.NpgsqlSchema.msl");
 
             throw new ArgumentOutOfRangeException(nameof(informationType));
         }
@@ -336,7 +330,12 @@ namespace Npgsql
         }
 
         static XmlReader CreateXmlReaderForResource(string resourceName)
-            => XmlReader.Create(System.Reflection.Assembly.GetAssembly(typeof(NpgsqlProviderManifest)).GetManifestResourceStream(resourceName));
+        {
+            var stream = Assembly.GetAssembly(typeof(NpgsqlProviderManifest)).GetManifestResourceStream(resourceName);
+            if (stream == null)
+                throw new InvalidOperationException($"Could not find resource {resourceName} in assembly, please report issue");
+            return XmlReader.Create(stream);
+        }
 
         public override bool SupportsEscapingLikeArgument(out char escapeCharacter)
         {
@@ -347,7 +346,6 @@ namespace Npgsql
         public override string EscapeLikeArgument([NotNull] string argument)
             => argument.Replace("\\","\\\\").Replace("%", "\\%").Replace("_", "\\_");
 
-#if ENTITIES6
         public override bool SupportsInExpression() => true;
 
         public override ReadOnlyCollection<EdmFunction> GetStoreFunctions()
@@ -409,6 +407,5 @@ namespace Npgsql
 
             throw new NotSupportedException($"Unsupported type for mapping to EdmType: {type.FullName}");
         }
-#endif
     }
 }

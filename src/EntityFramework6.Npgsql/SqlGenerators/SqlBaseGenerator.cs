@@ -25,14 +25,9 @@ using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Diagnostics;
-#if ENTITIES6
 using System.Globalization;
 using System.Data.Entity.Core.Common.CommandTrees;
 using System.Data.Entity.Core.Metadata.Edm;
-#else
-using System.Data.Common.CommandTrees;
-using System.Data.Metadata.Edm;
-#endif
 using System.Linq;
 using JetBrains.Annotations;
 using System.Text.RegularExpressions;
@@ -76,7 +71,6 @@ namespace Npgsql.SqlGenerators
             {"VarP","var_pop"},
         };
 
-#if ENTITIES6
         static readonly Dictionary<string, Operator> BinaryOperatorFunctionNames = new Dictionary<string, Operator>()
         {
             {"@@",Operator.QueryMatch},
@@ -85,7 +79,6 @@ namespace Npgsql.SqlGenerators
             {"operator_tsquery_contains",Operator.QueryContains},
             {"operator_tsquery_is_contained",Operator.QueryIsContained}
         };
-#endif
 
         void EnterExpression(PendingProjectsNode n) => CurrentExpressions.Add(n.Last.Exp);
         void LeaveExpression(PendingProjectsNode n) => CurrentExpressions.Remove(n.Last.Exp);
@@ -1117,7 +1110,6 @@ namespace Npgsql.SqlGenerators
                 }
             }
 
-#if ENTITIES6
             var functionName = function.StoreFunctionNameAttribute ?? function.Name;
             if (function.NamespaceName == "Npgsql")
             {
@@ -1220,12 +1212,8 @@ namespace Npgsql.SqlGenerators
             foreach (var a in args)
                 customFuncCall.AddArgument(a.Accept(this));
             return customFuncCall;
-#else
-            throw new NotSupportedException();
-#endif
         }
 
-#if ENTITIES6
         VisitedExpression VisitMatchRegex(EdmFunction function, IList<DbExpression> args, TypeUsage resultType)
         {
             if (args.Count != 2 && args.Count != 3)
@@ -1293,7 +1281,6 @@ namespace Npgsql.SqlGenerators
                     args[0].Accept(this),
                     newRegexExpression);
         }
-#endif
 
         VisitedExpression Substring(VisitedExpression source, VisitedExpression start, VisitedExpression count)
         {
@@ -1476,7 +1463,6 @@ namespace Npgsql.SqlGenerators
             return OperatorExpression.Build(oper, _useNewPrecedences, args[0].Accept(this), args[1].Accept(this));
         }
 
-#if ENTITIES6
         public override VisitedExpression Visit([NotNull] DbInExpression expression)
         {
             var item = expression.Item.Accept(this);
@@ -1493,6 +1479,5 @@ namespace Npgsql.SqlGenerators
             // This is overridden in the other visitors
             throw new NotImplementedException("New in Entity Framework 6");
         }
-#endif
     }
 }

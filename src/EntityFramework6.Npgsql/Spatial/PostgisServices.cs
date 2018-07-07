@@ -1,9 +1,5 @@
 ﻿using System;
-#if ENTITIES6
 using System.Data.Entity.Spatial;
-#else
-using System.Data.Spatial;
-#endif
 
 namespace Npgsql.Spatial
 {
