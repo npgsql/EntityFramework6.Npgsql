@@ -23,7 +23,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Data.Entity;
 using System.Data.Entity.Core.Common;
 using System.Data.Entity.Core.Metadata.Edm;
@@ -31,7 +30,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using System.Xml;
-using System.Data;
 using JetBrains.Annotations;
 using NpgsqlTypes;
 
@@ -127,16 +125,14 @@ namespace Npgsql
                 return TypeUsage.CreateDefaultTypeUsage(primitiveType);
             case "numeric":
                 {
-                    byte scale;
-                    byte precision;
                     if (storeType.Facets.TryGetValue(ScaleFacet, false, out facet) &&
                         !facet.IsUnbounded && facet.Value != null)
                     {
-                        scale = (byte)facet.Value;
+                        var scale = (byte)facet.Value;
                         if (storeType.Facets.TryGetValue(PrecisionFacet, false, out facet) &&
                             !facet.IsUnbounded && facet.Value != null)
                         {
-                            precision = (byte)facet.Value;
+                            var precision = (byte)facet.Value;
                             return TypeUsage.CreateDecimalTypeUsage(primitiveType, precision, scale);
                         }
                     }
@@ -242,16 +238,14 @@ namespace Npgsql
                 return TypeUsage.CreateDefaultTypeUsage(StoreTypeNameToStorePrimitiveType["float8"]);
             case PrimitiveTypeKind.Decimal:
                 {
-                    byte scale;
-                    byte precision;
                     if (edmType.Facets.TryGetValue(ScaleFacet, false, out facet) &&
                         !facet.IsUnbounded && facet.Value != null)
                     {
-                        scale = (byte)facet.Value;
+                        var scale = (byte)facet.Value;
                         if (edmType.Facets.TryGetValue(PrecisionFacet, false, out facet) &&
                             !facet.IsUnbounded && facet.Value != null)
                         {
-                            precision = (byte)facet.Value;
+                            var precision = (byte)facet.Value;
                             return TypeUsage.CreateDecimalTypeUsage(StoreTypeNameToStorePrimitiveType["numeric"], precision, scale);
                         }
                     }

@@ -69,42 +69,42 @@ namespace Npgsql
         {
             foreach (var migrationOperation in operations)
             {
-                if (migrationOperation is AddColumnOperation)
-                    Convert(migrationOperation as AddColumnOperation);
-                else if (migrationOperation is AlterColumnOperation)
-                    Convert(migrationOperation as AlterColumnOperation);
-                else if (migrationOperation is CreateTableOperation)
-                    Convert(migrationOperation as CreateTableOperation);
-                else if (migrationOperation is DropForeignKeyOperation)
-                    Convert(migrationOperation as DropForeignKeyOperation);
-                else if (migrationOperation is DropTableOperation)
-                    Convert(migrationOperation as DropTableOperation);
-                else if (migrationOperation is MoveTableOperation)
-                    Convert(migrationOperation as MoveTableOperation);
-                else if (migrationOperation is RenameTableOperation)
-                    Convert(migrationOperation as RenameTableOperation);
-                else if (migrationOperation is AddForeignKeyOperation)
-                    Convert(migrationOperation as AddForeignKeyOperation);
-                else if (migrationOperation is DropIndexOperation)
-                    Convert(migrationOperation as DropIndexOperation);
-                else if (migrationOperation is SqlOperation)
-                    AddStatment((migrationOperation as SqlOperation).Sql, (migrationOperation as SqlOperation).SuppressTransaction);
-                else if (migrationOperation is AddPrimaryKeyOperation)
-                    Convert(migrationOperation as AddPrimaryKeyOperation);
-                else if (migrationOperation is CreateIndexOperation)
-                    Convert(migrationOperation as CreateIndexOperation);
-                else if (migrationOperation is RenameIndexOperation)
-                    Convert(migrationOperation as RenameIndexOperation);
-                else if (migrationOperation is DropColumnOperation)
-                    Convert(migrationOperation as DropColumnOperation);
-                else if (migrationOperation is DropPrimaryKeyOperation)
-                    Convert(migrationOperation as DropPrimaryKeyOperation);
-                else if (migrationOperation is HistoryOperation)
-                    Convert(migrationOperation as HistoryOperation);
-                else if (migrationOperation is RenameColumnOperation)
-                    Convert(migrationOperation as RenameColumnOperation);
-                else if (migrationOperation is UpdateDatabaseOperation)
-                    Convert((migrationOperation as UpdateDatabaseOperation).Migrations as IEnumerable<MigrationOperation>);
+                if (migrationOperation is AddColumnOperation operation)
+                    Convert(operation);
+                else if (migrationOperation is AlterColumnOperation columnOperation)
+                    Convert(columnOperation);
+                else if (migrationOperation is CreateTableOperation tableOperation)
+                    Convert(tableOperation);
+                else if (migrationOperation is DropForeignKeyOperation keyOperation)
+                    Convert(keyOperation);
+                else if (migrationOperation is DropTableOperation dropTableOperation)
+                    Convert(dropTableOperation);
+                else if (migrationOperation is MoveTableOperation moveTableOperation)
+                    Convert(moveTableOperation);
+                else if (migrationOperation is RenameTableOperation renameTableOperation)
+                    Convert(renameTableOperation);
+                else if (migrationOperation is AddForeignKeyOperation foreignKeyOperation)
+                    Convert(foreignKeyOperation);
+                else if (migrationOperation is DropIndexOperation indexOperation)
+                    Convert(indexOperation);
+                else if (migrationOperation is SqlOperation sqlOperation)
+                    AddStatment(sqlOperation.Sql, sqlOperation.SuppressTransaction);
+                else if (migrationOperation is AddPrimaryKeyOperation primaryKeyOperation)
+                    Convert(primaryKeyOperation);
+                else if (migrationOperation is CreateIndexOperation createIndexOperation)
+                    Convert(createIndexOperation);
+                else if (migrationOperation is RenameIndexOperation renameIndexOperation)
+                    Convert(renameIndexOperation);
+                else if (migrationOperation is DropColumnOperation dropColumnOperation)
+                    Convert(dropColumnOperation);
+                else if (migrationOperation is DropPrimaryKeyOperation dropPrimaryKeyOperation)
+                    Convert(dropPrimaryKeyOperation);
+                else if (migrationOperation is HistoryOperation historyOperation)
+                    Convert(historyOperation);
+                else if (migrationOperation is RenameColumnOperation renameColumnOperation)
+                    Convert(renameColumnOperation);
+                else if (migrationOperation is UpdateDatabaseOperation databaseOperation)
+                    Convert(databaseOperation.Migrations as IEnumerable<MigrationOperation>);
                 else
                     throw new NotImplementedException("Unhandled MigrationOperation " + migrationOperation.GetType().Name + " in " + GetType().Name);
             }
@@ -237,6 +237,7 @@ namespace Npgsql
         #endregion
 
         #region Columns
+
         protected virtual void Convert(AddColumnOperation addColumnOperation)
         {
             var sql = new StringBuilder();
@@ -507,15 +508,11 @@ namespace Npgsql
         /// <returns>The quoted identifier.</returns>
         void AppendQuotedIdentifier(string identifier, StringBuilder builder)
         {
-            if (String.IsNullOrEmpty(identifier))
-            {
+            if (string.IsNullOrEmpty(identifier))
                 throw new ArgumentException("Value cannot be null or empty", nameof(identifier));
-            }
 
             if (identifier[identifier.Length - 1] == '"' && identifier[0] == '"')
-            {
                 builder.Append(identifier);
-            }
             else
             {
                 builder.Append('"');
@@ -531,19 +528,11 @@ namespace Npgsql
         /// <returns>The quoted identifier.</returns>
         string QuoteIdentifier(string identifier)
         {
-            if (String.IsNullOrEmpty(identifier))
-            {
+            if (string.IsNullOrEmpty(identifier))
                 throw new ArgumentException("Value cannot be null or empty", nameof(identifier));
-            }
 
-            if (identifier[identifier.Length - 1] == '"' && identifier[0] == '"')
-            {
-                return identifier;
-            }
-            else
-            {
-                return '"' + identifier + '"';
-            }
+            return identifier[identifier.Length - 1] == '"' && identifier[0] == '"'
+                ? identifier : $"\"{identifier}\"";
         }
 
         void AppendColumn(ColumnModel column, StringBuilder sql)
@@ -727,9 +716,7 @@ namespace Npgsql
         {
             var dotIndex = tableName.IndexOf('.');
             if (dotIndex == -1)
-            {
                 AppendQuotedIdentifier(tableName, sql);
-            }
             else
             {
                 AppendQuotedIdentifier(tableName.Remove(dotIndex), sql);
@@ -756,9 +743,7 @@ namespace Npgsql
         }
 
         void AppendValue(bool value, StringBuilder sql)
-        {
-            sql.Append(value ? "TRUE" : "FALSE");
-        }
+            => sql.Append(value ? "TRUE" : "FALSE");
 
         void AppendValue(DateTime value, StringBuilder sql)
         {
@@ -804,22 +789,22 @@ namespace Npgsql
 
         void AppendValue(object value, StringBuilder sql)
         {
-            if (value is byte[])
-                AppendValue((byte[])value, sql);
-            else if (value is bool)
-                AppendValue((bool)value, sql);
-            else if (value is DateTime)
-                AppendValue((DateTime)value, sql);
-            else if (value is DateTimeOffset)
-                AppendValue((DateTimeOffset)value, sql);
-            else if (value is Guid)
-                AppendValue((Guid)value, sql);
-            else if (value is string)
-                AppendValue((string)value, sql);
-            else if (value is TimeSpan)
-                AppendValue((TimeSpan)value, sql);
-            else if (value is DbGeometry)
-                AppendValue((DbGeometry)value, sql);
+            if (value is byte[] bytes)
+                AppendValue(bytes, sql);
+            else if (value is bool b)
+                AppendValue(b, sql);
+            else if (value is DateTime time)
+                AppendValue(time, sql);
+            else if (value is DateTimeOffset offset)
+                AppendValue(offset, sql);
+            else if (value is Guid guid)
+                AppendValue(guid, sql);
+            else if (value is string s)
+                AppendValue(s, sql);
+            else if (value is TimeSpan timeSpan)
+                AppendValue(timeSpan, sql);
+            else if (value is DbGeometry geometry)
+                AppendValue(geometry, sql);
             else
                 sql.Append(string.Format(CultureInfo.InvariantCulture, "{0}", value));
         }
