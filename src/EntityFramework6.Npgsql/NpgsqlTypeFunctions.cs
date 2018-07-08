@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Data.Entity;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Npgsql
 {
     /// <summary>
     /// Use this class in LINQ queries to emit type manipulation SQL fragments.
     /// </summary>
+    [SuppressMessage("ReSharper", "UnusedParameter.Global")]
     public static class NpgsqlTypeFunctions
     {
         /// <summary>
@@ -13,8 +15,6 @@ namespace Npgsql
         /// </summary>
         [DbFunction("Npgsql", "cast")]
         public static string Cast(string unknownTypeValue, string postgresTypeName)
-        {
-            throw new NotSupportedException();
-        }
+            => throw new NotSupportedException();
     }
 }

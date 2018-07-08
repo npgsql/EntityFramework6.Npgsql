@@ -33,6 +33,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity.Core.Metadata.Edm;
 using System.Data.Entity.Core.Objects;
 using System.Data.Entity.Infrastructure;
+using System.Diagnostics.CodeAnalysis;
 using NpgsqlTypes;
 
 namespace EntityFramework6.Npgsql.Tests
@@ -78,6 +79,21 @@ namespace EntityFramework6.Npgsql.Tests
                 Assert.IsTrue(context.Posts.Any(p => p.Title.StartsWith(someParameter)));
                 Assert.IsTrue(context.Posts.Select(p => p.VarbitColumn == varbitVal).First());
                 Assert.IsTrue(context.Posts.Select(p => p.VarbitColumn == "10011").First());
+                Assert.AreEqual(1, context.NoColumnsEntities.Count());
+            }
+        }
+
+        [Test]
+        public void InsertAndSelectSchemaless()
+        {
+            using (var context = new BloggingContext(ConnectionString))
+            {
+                context.NoColumnsEntities.Add(new NoColumnsEntity());
+                context.SaveChanges();
+            }
+
+            using (var context = new BloggingContext(ConnectionString))
+            {
                 Assert.AreEqual(1, context.NoColumnsEntities.Count());
             }
         }
@@ -621,8 +637,8 @@ namespace EntityFramework6.Npgsql.Tests
                 CollectionAssert.AreEqual(localChangedIds, remoteChangedIds);
             }
         }
-		
-		[Test]
+
+        [Test]
         public void TestScalarValuedStoredFunctions_with_null_StoreFunctionName()
         {
             using (var context = new BloggingContext(ConnectionString))
@@ -717,6 +733,118 @@ namespace EntityFramework6.Npgsql.Tests
 
                 Assert.That(administrator.Computed, Is.EqualTo("I administrate"));
                 Assert.That(administrator.HasBlog, Is.True);
+            }
+        }
+
+        [Test]
+        public void TestTableValuedStoredFunctions()
+        {
+            using (var context = new BloggingContext(ConnectionString))
+            {
+                context.Database.Log = Console.Out.WriteLine;
+
+                // Add some data and query it back using Stored Function
+                context.Blogs.Add(new Blog
+                {
+                    Name = "Some blog1 name",
+                    Posts = new List<Post>()
+                });
+                context.Blogs.Add(new Blog
+                {
+                    Name = "Some blog2 name",
+                    Posts = new List<Post>()
+                });
+                context.SaveChanges();
+
+                // Query back
+                var query = from b in context.GetBlogsByName("blog1")
+                        select b;
+                var list = query.ToList();
+
+                Assert.AreEqual(1, list.Count);
+                Assert.AreEqual("Some blog1 name", list[0].Name);
+
+                // Query with projection
+                var query2 = from b in context.GetBlogsByName("blog1")
+                            select new { b.Name, Something = 1 };
+                var list2 = query2.ToList();
+                Assert.AreEqual(1, list2.Count);
+                Assert.AreEqual("Some blog1 name", list2[0].Name);
+                Assert.AreEqual(1, list2[0].Something);
+            }
+        }
+
+        [Test]
+        public void Test_string_type_inference_in_coalesce_statements()
+        {
+            using (var context = new BloggingContext(ConnectionString))
+            {
+                context.Database.Log = Console.Out.WriteLine;
+
+                context.Blogs.Add(new Blog { Name = "Hello" });
+                context.SaveChanges();
+
+                string stringValue = "string_value";
+                var query = context.Blogs.Select(b => stringValue + "_postfix");
+                var blogTitle = query.First();
+                Assert.That(blogTitle, Is.EqualTo("string_value_postfix"));
+                Console.WriteLine(query.ToString());
+                StringAssert.AreEqualIgnoringCase(
+                    "SELECT COALESCE(@p__linq__0,E'') || E'_postfix' AS \"C1\" FROM \"dbo\".\"Blogs\" AS \"Extent1\"",
+                    query.ToString());
+            }
+        }
+
+        [Test]
+        [SuppressMessage("ReSharper", "ConstantNullCoalescingCondition")]
+        public void Test_string_null_propagation()
+        {
+            using (var context = new BloggingContext(ConnectionString))
+            {
+                context.Database.Log = Console.Out.WriteLine;
+
+                context.Blogs.Add(new Blog { Name = "Hello" });
+                context.SaveChanges();
+
+                string stringValue = "string_value";
+                var query = context.Blogs.Select(b => (stringValue ?? "default_value") + "_postfix");
+                var blog_title = query.First();
+                Assert.That(blog_title, Is.EqualTo("string_value_postfix"));
+
+                Console.WriteLine(query.ToString());
+                StringAssert.AreEqualIgnoringCase(
+                    "SELECT  CASE  WHEN (COALESCE(@p__linq__0,E'default_value') IS NULL) THEN (E'')"
+                    + " WHEN (@p__linq__0 IS NULL) THEN (E'default_value') ELSE (@p__linq__0) END  ||"
+                    + " E'_postfix' AS \"C1\" FROM \"dbo\".\"Blogs\" AS \"Extent1\"",
+                    query.ToString());
+            }
+        }
+
+        [Test]
+        [SuppressMessage("ReSharper", "ConstantNullCoalescingCondition")]
+        public void Test_string_multiple_null_propagation()
+        {
+            using (var context = new BloggingContext(ConnectionString))
+            {
+                context.Database.Log = Console.Out.WriteLine;
+
+                context.Blogs.Add(new Blog { Name = "Hello" });
+                context.SaveChanges();
+
+                string stringValue1 = "string_value1";
+                string stringValue2 = "string_value2";
+                string stringValue3 = "string_value3";
+
+                var query = context.Blogs.Select(b => (stringValue1 ?? stringValue2 ?? stringValue3) + "_postfix");
+                var blog_title = query.First();
+                Assert.That(blog_title, Is.EqualTo("string_value1_postfix"));
+
+                Console.WriteLine(query.ToString());
+                StringAssert.AreEqualIgnoringCase(
+                    "SELECT  CASE  WHEN (COALESCE(@p__linq__0,COALESCE(@p__linq__1,@p__linq__2)) IS NULL)"
+                    + " THEN (E'') WHEN (@p__linq__0 IS NULL) THEN (COALESCE(@p__linq__1,@p__linq__2)) ELSE"
+                    + " (@p__linq__0) END  || E'_postfix' AS \"C1\" FROM \"dbo\".\"Blogs\" AS \"Extent1\"",
+                    query.ToString());
             }
         }
     }

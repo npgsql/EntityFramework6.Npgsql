@@ -24,18 +24,14 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
-#if ENTITIES6
 using System.Data.Entity.Core.Common.CommandTrees;
-#else
-using System.Data.Common.CommandTrees;
-#endif
 
 namespace Npgsql.SqlGenerators
 {
     internal class SqlInsertGenerator : SqlBaseGenerator
     {
-        private DbInsertCommandTree _commandTree;
-        private string _tableName;
+        readonly DbInsertCommandTree _commandTree;
+        string _tableName;
 
         public SqlInsertGenerator(DbInsertCommandTree commandTree)
         {
@@ -44,7 +40,7 @@ namespace Npgsql.SqlGenerators
 
         public override VisitedExpression Visit(DbPropertyExpression expression)
         {
-            DbVariableReferenceExpression variable = expression.Instance as DbVariableReferenceExpression;
+            var variable = expression.Instance as DbVariableReferenceExpression;
             if (variable == null || variable.VariableName != _tableName)
                 throw new NotSupportedException();
             return new PropertyExpression(expression.Property);
@@ -53,11 +49,11 @@ namespace Npgsql.SqlGenerators
         public override void BuildCommand(DbCommand command)
         {
             // TODO: handle_commandTree.Parameters
-            InsertExpression insert = new InsertExpression();
+            var insert = new InsertExpression();
             _tableName = _commandTree.Target.VariableName;
             insert.AppendTarget(_commandTree.Target.Expression.Accept(this));
-            List<VisitedExpression> columns = new List<VisitedExpression>();
-            List<VisitedExpression> values = new List<VisitedExpression>();
+            var columns = new List<VisitedExpression>();
+            var values = new List<VisitedExpression>();
             foreach (DbSetClause clause in _commandTree.SetClauses)
             {
                 columns.Add(clause.Property.Accept(this));
@@ -66,9 +62,7 @@ namespace Npgsql.SqlGenerators
             insert.AppendColumns(columns);
             insert.AppendValues(values);
             if (_commandTree.Returning != null)
-            {
-                insert.AppendReturning(_commandTree.Returning as DbNewInstanceExpression);
-            }
+                insert.AppendReturning((DbNewInstanceExpression)_commandTree.Returning);
             _tableName = null;
             command.CommandText = insert.ToString();
         }

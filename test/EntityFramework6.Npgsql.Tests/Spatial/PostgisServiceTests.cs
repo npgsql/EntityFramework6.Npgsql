@@ -1,7 +1,7 @@
 ﻿using System;
 using Npgsql;
+using Npgsql.LegacyPostgis;
 using Npgsql.Spatial;
-using NpgsqlTypes;
 using NUnit.Framework;
 // ReSharper disable RedundantExplicitArrayCreation
 
@@ -1321,6 +1321,7 @@ namespace EntityFramework6.Npgsql.Tests.Spatial
 
             using (var conn = new NpgsqlConnection(ConnectionString))
             {
+                NpgsqlConnection.GlobalTypeMapper.UseLegacyPostgis();
                 conn.Open();
                 using (var cmd = new NpgsqlCommand("CREATE EXTENSION IF NOT EXISTS postgis", conn))
                     cmd.ExecuteNonQuery();

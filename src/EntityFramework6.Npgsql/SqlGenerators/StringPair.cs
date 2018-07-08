@@ -25,6 +25,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using JetBrains.Annotations;
 
 namespace Npgsql.SqlGenerators
 {
@@ -33,33 +34,25 @@ namespace Npgsql.SqlGenerators
     /// </summary>
     internal class StringPair
     {
-        private string _item1;
-        private string _item2;
-
-        public string Item1 { get { return _item1; } }
-        public string Item2 { get { return _item2; } }
+        public string Item1 { get; }
+        public string Item2 { get; }
 
         public StringPair(string s1, string s2)
         {
-            _item1 = s1;
-            _item2 = s2;
+            Item1 = s1;
+            Item2 = s2;
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals([CanBeNull] object obj)
         {
-            if (obj == null)
-                return false;
-
-            StringPair o = obj as StringPair;
+            var o = obj as StringPair;
             if (o == null)
                 return false;
 
-            return _item1 == o._item1 && _item2 == o._item2;
+            return Item1 == o.Item1 && Item2 == o.Item2;
         }
 
         public override int GetHashCode()
-        {
-            return (_item1 + "." + _item2).GetHashCode();
-        }
+            => (Item1 + "." + Item2).GetHashCode();
     }
 }

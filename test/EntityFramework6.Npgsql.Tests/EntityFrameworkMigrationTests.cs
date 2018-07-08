@@ -151,13 +151,13 @@ namespace EntityFramework6.Npgsql.Tests
                                     expectedColumns.Remove((string)reader[0]);
                                     Assert.AreEqual("integer", (string)reader[1]);
                                     Assert.AreEqual("NO", (string)reader[2]);
-                                    Assert.AreEqual("0", (string)reader[3]);
+                                    Assert.That(string.IsNullOrEmpty(reader[3] as string));
                                     break;
                                 case "UniqueId":
                                     expectedColumns.Remove((string)reader[0]);
                                     Assert.AreEqual("uuid", (string)reader[1]);
                                     Assert.AreEqual("NO", (string)reader[2]);
-                                    Assert.AreEqual("'00000000-0000-0000-0000-000000000000'::uuid", reader[3] as string);
+                                    Assert.That(string.IsNullOrEmpty(reader[3] as string));
                                     //Assert.AreEqual("uuid_generate_v4()", reader[3] as string);
                                     break;
                                 case "Rating":
@@ -355,10 +355,10 @@ namespace EntityFramework6.Npgsql.Tests
             var statments = new NpgsqlMigrationSqlGenerator().Generate(operations, _backendVersion.ToString());
             Assert.AreEqual(2, statments.Count());
             if (_backendVersion.Major > 9 || (_backendVersion.Major == 9 && _backendVersion.Minor > 2))
-                Assert.AreEqual("CREATE SCHEMA IF NOT EXISTS someSchema", statments.ElementAt(0).Sql);
+                Assert.AreEqual("CREATE SCHEMA IF NOT EXISTS \"someSchema\"", statments.ElementAt(0).Sql);
             else
-                Assert.AreEqual("CREATE SCHEMA someSchema", statments.ElementAt(0).Sql);
-            Assert.AreEqual("CREATE TABLE \"someSchema\".\"someTable\"(\"SomeString\" varchar(233) NOT NULL DEFAULT '',\"AnotherString\" text,\"SomeBytes\" bytea,\"SomeLong\" serial8,\"SomeDateTime\" timestamp)", statments.ElementAt(1).Sql);
+                Assert.AreEqual("CREATE SCHEMA \"someSchema\"", statments.ElementAt(0).Sql);
+            Assert.AreEqual("CREATE TABLE \"someSchema\".\"someTable\"(\"SomeString\" varchar(233) NOT NULL,\"AnotherString\" text,\"SomeBytes\" bytea,\"SomeLong\" serial8,\"SomeDateTime\" timestamp)", statments.ElementAt(1).Sql);
         }
 
         [Test]
@@ -503,10 +503,10 @@ namespace EntityFramework6.Npgsql.Tests
             var statments = new NpgsqlMigrationSqlGenerator().Generate(operations, _backendVersion.ToString());
             Assert.AreEqual(2, statments.Count());
             if (_backendVersion.Major > 9 || (_backendVersion.Major == 9 && _backendVersion.Minor > 2))
-                Assert.AreEqual("CREATE SCHEMA IF NOT EXISTS someNewSchema", statments.ElementAt(0).Sql);
+                Assert.AreEqual("CREATE SCHEMA IF NOT EXISTS \"someNewSchema\"", statments.ElementAt(0).Sql);
             else
-                Assert.AreEqual("CREATE SCHEMA someNewSchema", statments.ElementAt(0).Sql);
-            Assert.AreEqual("ALTER TABLE \"someOldSchema\".\"someTable\" SET SCHEMA someNewSchema", statments.ElementAt(1).Sql);
+                Assert.AreEqual("CREATE SCHEMA \"someNewSchema\"", statments.ElementAt(0).Sql);
+            Assert.AreEqual("ALTER TABLE \"someOldSchema\".\"someTable\" SET SCHEMA \"someNewSchema\"", statments.ElementAt(1).Sql);
         }
 
         [Test]
@@ -517,10 +517,38 @@ namespace EntityFramework6.Npgsql.Tests
             var statments = new NpgsqlMigrationSqlGenerator().Generate(operations, _backendVersion.ToString());
             Assert.AreEqual(2, statments.Count());
             if (_backendVersion.Major > 9 || (_backendVersion.Major == 9 && _backendVersion.Minor > 2))
-                Assert.AreEqual("CREATE SCHEMA IF NOT EXISTS dbo", statments.ElementAt(0).Sql);
+                Assert.AreEqual("CREATE SCHEMA IF NOT EXISTS \"dbo\"", statments.ElementAt(0).Sql);
             else
-                Assert.AreEqual("CREATE SCHEMA dbo", statments.ElementAt(0).Sql);
-            Assert.AreEqual("ALTER TABLE \"someOldSchema\".\"someTable\" SET SCHEMA dbo", statments.ElementAt(1).Sql);
+                Assert.AreEqual("CREATE SCHEMA \"dbo\"", statments.ElementAt(0).Sql);
+            Assert.AreEqual("ALTER TABLE \"someOldSchema\".\"someTable\" SET SCHEMA \"dbo\"", statments.ElementAt(1).Sql);
+        }
+
+        [Test]
+        public void MoveTableOperationPrequotedNewSchema()
+        {
+            var operations = new List<MigrationOperation>();
+            operations.Add(new MoveTableOperation("someOldSchema.someTable", "\"prequotedNewSchema\""));
+            var statments = new NpgsqlMigrationSqlGenerator().Generate(operations, _backendVersion.ToString());
+            Assert.AreEqual(2, statments.Count());
+            if (_backendVersion.Major > 9 || (_backendVersion.Major == 9 && _backendVersion.Minor > 2))
+                Assert.AreEqual("CREATE SCHEMA IF NOT EXISTS \"prequotedNewSchema\"", statments.ElementAt(0).Sql);
+            else
+                Assert.AreEqual("CREATE SCHEMA \"prequotedNewSchema\"", statments.ElementAt(0).Sql);
+            Assert.AreEqual("ALTER TABLE \"someOldSchema\".\"someTable\" SET SCHEMA \"prequotedNewSchema\"", statments.ElementAt(1).Sql);
+        }
+
+        [Test]
+        public void MoveTableOperationPrequotedOldSchema()
+        {
+            var operations = new List<MigrationOperation>();
+            operations.Add(new MoveTableOperation("\"prequotedOldSchema\".\"someTable\"", "newSchema"));
+            var statments = new NpgsqlMigrationSqlGenerator().Generate(operations, _backendVersion.ToString());
+            Assert.AreEqual(2, statments.Count());
+            if (_backendVersion.Major > 9 || (_backendVersion.Major == 9 && _backendVersion.Minor > 2))
+                Assert.AreEqual("CREATE SCHEMA IF NOT EXISTS \"newSchema\"", statments.ElementAt(0).Sql);
+            else
+                Assert.AreEqual("CREATE SCHEMA \"newSchema\"", statments.ElementAt(0).Sql);
+            Assert.AreEqual("ALTER TABLE \"prequotedOldSchema\".\"someTable\" SET SCHEMA \"newSchema\"", statments.ElementAt(1).Sql);
         }
 
         [Test]
