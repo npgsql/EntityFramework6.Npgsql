@@ -6,6 +6,21 @@ title: Entity Framework 6
 Npgsql has an Entity Framework 6 provider. You can use it by installing the
 [EntityFramework6.Npgsql](https://www.nuget.org/packages/EntityFramework6.Npgsql/) nuget.
 
+## Basic Usage ##
+Create an inheritor if DbConfiguration in the same assembly as your entity framework DbContext. Ensure that you configure provider services, a provider factory, a default connection factory as shown below:
+
+```
+class NpgSqlConfiguration : DbConfiguration
+{
+    public NpgSqlConfiguration()
+    {
+        SetProviderFactory("Npgsql", NpgsqlFactory.Instance);
+        SetProviderServices("Npgsql", provider: NpgsqlServices.Instance);
+        SetDefaultConnectionFactory(new NpgsqlConnectionFactory());
+    }
+}
+```
+
 ## Guid Support ##
 
 Npgsql EF migrations support uses `uuid_generate_v4()` function to generate guids.
