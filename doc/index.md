@@ -6,10 +6,13 @@ title: Entity Framework 6
 Npgsql has an Entity Framework 6 provider. You can use it by installing the
 [EntityFramework6.Npgsql](https://www.nuget.org/packages/EntityFramework6.Npgsql/) nuget.
 
-## Basic Usage ##
-Create an inheritor of DbConfiguration in the same assembly as your entity framework DbContext. Ensure that you configure provider services, a provider factory, a default connection factory as shown below:
+## Basic Configuration ##
+To use Entity Framework with Npgsql, define a class that inherits from `DbConfiguration` in the same assembly as your class inheriting `DbContext`. Ensure that you configure provider services, a provider factory, a default connection factory as shown below:
 
-```
+```csharp
+using Npgsql;
+using System.Data.Entity;
+
 class NpgSqlConfiguration : DbConfiguration
 {
     public NpgSqlConfiguration()
