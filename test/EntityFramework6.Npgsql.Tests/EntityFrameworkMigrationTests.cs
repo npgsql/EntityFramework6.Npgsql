@@ -487,11 +487,11 @@ namespace EntityFramework6.Npgsql.Tests
             Assert.AreEqual(1, statements.Count());
             if (_backendVersion.Major > 9 || (_backendVersion.Major == 9 && _backendVersion.Minor >= 2))
             {
-                Assert.AreEqual("ALTER INDEX IF EXISTS someSchema.\"someOldIndexName\" RENAME TO \"someNewIndexName\"", statements.ElementAt(0).Sql);
+                Assert.AreEqual("ALTER INDEX IF EXISTS someSchema.\"someTable_someOldIndexName\" RENAME TO \"someTable_someNewIndexName\"", statements.ElementAt(0).Sql);
             }
             else
             {
-                Assert.AreEqual("ALTER INDEX someSchema.\"someOldIndexName\" RENAME TO \"someNewIndexName\"", statements.ElementAt(0).Sql);    
+                Assert.AreEqual("ALTER INDEX someSchema.\"someTable_someOldIndexName\" RENAME TO \"someTable_someNewIndexName\"", statements.ElementAt(0).Sql);    
             }
         }
 

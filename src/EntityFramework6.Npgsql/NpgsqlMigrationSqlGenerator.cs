@@ -426,9 +426,9 @@ namespace Npgsql
 
             sql.Append(GetSchemaNameFromFullTableName(renameIndexOperation.Table));
             sql.Append(".\"");
-            sql.Append(renameIndexOperation.Name);
+            sql.Append(GetTableNameFromFullTableName(renameIndexOperation.Table) + "_" + renameIndexOperation.Name);
             sql.Append("\" RENAME TO \"");
-            sql.Append(renameIndexOperation.NewName);
+            sql.Append(GetTableNameFromFullTableName(renameIndexOperation.Table) + "_" + renameIndexOperation.NewName);
             sql.Append('"');
             AddStatment(sql);
         }
