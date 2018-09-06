@@ -161,7 +161,7 @@ namespace Npgsql
                 sql.Append(",");
                 sql.Append("CONSTRAINT ");
                 sql.Append('"');
-                sql.Append(createTableOperation.PrimaryKey.Name);
+                sql.Append(this.HandleAssociationName(createTableOperation.PrimaryKey.Name));
                 sql.Append('"');
                 sql.Append(" PRIMARY KEY ");
                 sql.Append("(");
@@ -352,7 +352,7 @@ namespace Npgsql
             sql.Append("ALTER TABLE ");
             AppendTableName(addForeignKeyOperation.DependentTable, sql);
             sql.Append(" ADD CONSTRAINT \"");
-            sql.Append(addForeignKeyOperation.Name);
+            sql.Append(this.HandleAssociationName(addForeignKeyOperation.Name));
             sql.Append("\" FOREIGN KEY (");
             foreach (var column in addForeignKeyOperation.DependentColumns)
             {
@@ -401,7 +401,7 @@ namespace Npgsql
                 sql.Append("UNIQUE ");
 
             sql.Append("INDEX \"");
-            sql.Append(GetTableNameFromFullTableName(createIndexOperation.Table) + "_" + createIndexOperation.Name);
+            sql.Append(this.HandleAssociationName(GetTableNameFromFullTableName(createIndexOperation.Table) + "_" + createIndexOperation.Name));
             sql.Append("\" ON ");
             AppendTableName(createIndexOperation.Table, sql);
             sql.Append(" (");
@@ -428,7 +428,7 @@ namespace Npgsql
             sql.Append(".\"");
             sql.Append(renameIndexOperation.Name);
             sql.Append("\" RENAME TO \"");
-            sql.Append(renameIndexOperation.NewName);
+            sql.Append(this.HandleAssociationName(renameIndexOperation.NewName));
             sql.Append('"');
             AddStatment(sql);
         }
@@ -438,6 +438,11 @@ namespace Npgsql
             var dotIndex = tableFullName.IndexOf('.');
             return dotIndex != -1 ? tableFullName.Remove(dotIndex) : "dto";   
             //TODO: Check always setting dto schema if no schema in table name is not bug
+        }
+
+        protected virtual string HandleAssociationName(string associationName)
+        {
+            return associationName;
         }
 
         /// <summary>
@@ -468,7 +473,7 @@ namespace Npgsql
             sql.Append("ALTER TABLE ");
             AppendTableName(addPrimaryKeyOperation.Table, sql);
             sql.Append(" ADD CONSTRAINT \"");
-            sql.Append(addPrimaryKeyOperation.Name);
+            sql.Append(this.HandleAssociationName(addPrimaryKeyOperation.Name));
             sql.Append("\" PRIMARY KEY ");
 
             sql.Append("(");
