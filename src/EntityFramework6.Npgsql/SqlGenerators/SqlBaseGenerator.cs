@@ -665,7 +665,10 @@ namespace Npgsql.SqlGenerators
         }
 
         public override VisitedExpression Visit([NotNull] DbIsNullExpression expression)
-            => OperatorExpression.Build(Operator.IsNull, _useNewPrecedences, expression.Argument.Accept(this));
+            => OperatorExpression.Build(Operator.IsNull, _useNewPrecedences, 
+                expression.Argument.ExpressionKind == DbExpressionKind.ParameterReference && (expression.Argument.ResultType.EdmType as PrimitiveType).PrimitiveTypeKind == PrimitiveTypeKind.String 
+                ? expression.Argument.Accept(this).Append("::text") 
+                : expression.Argument.Accept(this));
 
         // NOT EXISTS
         public override VisitedExpression Visit([NotNull] DbIsEmptyExpression expression)
