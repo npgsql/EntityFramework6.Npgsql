@@ -847,5 +847,70 @@ namespace EntityFramework6.Npgsql.Tests
                     query.ToString());
             }
         }
+
+        [Test]
+        public void Test_enum()
+        {
+            using (var context = new BloggingContext(ConnectionString))
+            {
+                context.Database.Log = Console.Out.WriteLine;
+
+                context.ClrEnumEntities.Add(
+                    new ClrEnumEntity
+                    {
+                        TestByte = TestByteEnum.Bar,
+                        TestShort = TestShortEnum.Bar,
+                        TestInt = TestIntEnum.Bar,
+                        TestLong = TestLongEnum.Bar
+                    });
+                context.SaveChanges();
+
+                var query = context.ClrEnumEntities.Where(
+                    x => x.TestByte == TestByteEnum.Bar
+                         && x.TestShort == TestShortEnum.Bar
+                         && x.TestInt == TestIntEnum.Bar
+                         && x.TestLong == TestLongEnum.Bar);
+
+                var result = query.First();
+                Assert.That(result.TestByte, Is.EqualTo(TestByteEnum.Bar));
+                Assert.That(result.TestShort, Is.EqualTo(TestShortEnum.Bar));
+                Assert.That(result.TestInt, Is.EqualTo(TestIntEnum.Bar));
+                Assert.That(result.TestLong, Is.EqualTo(TestLongEnum.Bar));
+            }
+        }
+
+        [Test]
+        public void Test_enum_composite_key()
+        {
+            using (var context = new BloggingContext(ConnectionString))
+            {
+                context.Database.Log = Console.Out.WriteLine;
+
+                context.ClrEnumCompositeKeyEntities.Add(
+                    new ClrEnumCompositeKeyEntity
+                    {
+                        TestByte = TestByteEnum.Bar,
+                        TestShort = TestShortEnum.Bar,
+                        TestInt = TestIntEnum.Bar,
+                        TestLong = TestLongEnum.Bar
+                    });
+                context.SaveChanges();
+            }
+
+            using (var context = new BloggingContext(ConnectionString))
+            { 
+                var result = context.ClrEnumCompositeKeyEntities.Find(
+                        TestByteEnum.Bar,
+                        TestShortEnum.Bar,
+                        TestIntEnum.Bar,
+                        TestLongEnum.Bar);
+
+                Assert.That(result, Is.Not.Null);
+                Assert.That(result.TestByte, Is.EqualTo(TestByteEnum.Bar));
+                Assert.That(result.TestShort, Is.EqualTo(TestShortEnum.Bar));
+                Assert.That(result.TestInt, Is.EqualTo(TestIntEnum.Bar));
+                Assert.That(result.TestLong, Is.EqualTo(TestLongEnum.Bar));
+            }
+        }
     }
 }

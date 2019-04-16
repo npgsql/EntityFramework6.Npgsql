@@ -32,6 +32,7 @@ using System.Data.Entity.Infrastructure.DependencyResolution;
 using Npgsql.SqlGenerators;
 using DbConnection = System.Data.Common.DbConnection;
 using DbCommand = System.Data.Common.DbCommand;
+using System.Data.Common;
 
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 
@@ -71,6 +72,26 @@ namespace Npgsql
             TranslateCommandTree(serverVersion, commandTree, command);
 
             return command;
+        }
+
+        protected override void SetDbParameterValue(DbParameter parameter, TypeUsage parameterType, object value)
+        {
+            base.SetDbParameterValue(parameter, parameterType, value);
+            ConvertValueToNumericIfEnum(parameter);
+        }
+
+        // Npgsql > 4.0 does strict type checks on integral values and fails with enums passed with numeric DbType.
+        static void ConvertValueToNumericIfEnum(DbParameter parameter)
+        {
+            var parameterValueObjectType = parameter.Value.GetType();
+
+            if (!parameterValueObjectType.IsEnum)
+            {
+                return;
+            }
+
+            var underlyingType = Enum.GetUnderlyingType(parameterValueObjectType);
+            parameter.Value = Convert.ChangeType(parameter.Value, underlyingType);
         }
 
         internal void TranslateCommandTree(Version serverVersion, DbCommandTree commandTree, DbCommand command, bool createParametersForNonSelect = true)
