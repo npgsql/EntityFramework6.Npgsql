@@ -5,9 +5,9 @@
     <Copyright>Copyright 2019 © The Npgsql Development Team</Copyright>
     <Company>Npgsql</Company>
     <PackageTags>npgsql postgresql postgres data database entity framework ef orm</PackageTags>
-    <VersionPrefix>3.2.0</VersionPrefix>
+    <VersionPrefix>6.3.0</VersionPrefix>
     <LangVersion>latest</LangVersion>
-    <TargetFramework>net45</TargetFramework>
+    <TargetFrameworks>net45;netstandard21</TargetFrameworks>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <NoWarn>CS1591</NoWarn>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -29,7 +29,7 @@
   <ItemGroup>
     <None Update="install.ps1" Pack="true" PackagePath="\tools" />
   </ItemGroup>
-  <ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
@@ -40,6 +40,6 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Npgsql" Version="4.0.7" />
-    <PackageReference Include="EntityFramework" Version="6.2.0" />
+    <PackageReference Include="EntityFramework" Version="6.3.0-preview5-19254-05" />
   </ItemGroup>
 </Project>

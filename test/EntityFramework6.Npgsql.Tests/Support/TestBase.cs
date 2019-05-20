@@ -23,8 +23,6 @@ namespace EntityFramework6.Npgsql.Tests
 
         string _connectionString;
 
-        static bool _loggingSetUp;
-
         /// <summary>
         /// Unless the NPGSQL_TEST_DB environment variable is defined, this is used as the connection string for the
         /// test database.
@@ -36,26 +34,7 @@ namespace EntityFramework6.Npgsql.Tests
         [OneTimeSetUp]
         public virtual void TestFixtureSetup()
         {
-            SetupLogging();
             _log.Debug("Connection string is: " + ConnectionString);
-        }
-
-        protected virtual void SetupLogging()
-        {
-            var config = new LoggingConfiguration();
-            var consoleTarget = new ConsoleTarget();
-            consoleTarget.Layout = @"${message} ${exception:format=tostring}";
-            config.AddTarget("console", consoleTarget);
-            var rule = new LoggingRule("*", NLog.LogLevel.Debug, consoleTarget);
-            config.LoggingRules.Add(rule);
-            NLog.LogManager.Configuration = config;
-
-            if (!_loggingSetUp)
-            {
-                NpgsqlLogManager.Provider = new NLogLoggingProvider();
-                NpgsqlLogManager.IsParameterLoggingEnabled = true;
-                _loggingSetUp = true;
-            }
         }
 
         #endregion

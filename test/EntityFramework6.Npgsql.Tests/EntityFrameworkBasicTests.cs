@@ -17,7 +17,7 @@ namespace EntityFramework6.Npgsql.Tests
 {
     public class EntityFrameworkBasicTests : EntityFrameworkTestBase
     {
-        [Test]
+        [Test, Ignore("https://github.com/aspnet/EntityFramework6/issues/860")]
         public void InsertAndSelect()
         {
             var varbitVal = "10011";
@@ -457,7 +457,7 @@ namespace EntityFramework6.Npgsql.Tests
 
         //Hunting season is open Happy hunting on OrderBy,GroupBy,Min,Max,Skip,Take,ThenBy... and all posible combinations
 
-        [Test]
+        [Test, Ignore("https://github.com/aspnet/EntityFramework6/issues/861")]
         public void TestComplicatedQueries()
         {
             using (var context = new BloggingContext(ConnectionString))
@@ -517,7 +517,7 @@ namespace EntityFramework6.Npgsql.Tests
             }
         }
 
-        [Test]
+        [Test, Ignore("https://github.com/aspnet/EntityFramework6/issues/861")]
         [MonoIgnore("Probably bug in mono. See https://github.com/npgsql/Npgsql/issues/289.")]
         public void TestComplicatedQueriesMonoFails()
         {
@@ -541,7 +541,7 @@ namespace EntityFramework6.Npgsql.Tests
             }
         }
 
-        [Test]
+        [Test, Ignore("https://github.com/aspnet/EntityFramework6/issues/861")]
         public void TestComplicatedQueriesWithApply()
         {
             using (var conn = OpenConnection(ConnectionString))
