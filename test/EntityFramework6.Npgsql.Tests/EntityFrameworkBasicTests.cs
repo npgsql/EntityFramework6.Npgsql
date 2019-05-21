@@ -1,27 +1,4 @@
-﻿#region License
-// The PostgreSQL License
-//
-// Copyright (C) 2016 The Npgsql Development Team
-//
-// Permission to use, copy, modify, and distribute this software and its
-// documentation for any purpose, without fee, and without a written
-// agreement is hereby granted, provided that the above copyright notice
-// and this paragraph and the following two paragraphs appear in all copies.
-//
-// IN NO EVENT SHALL THE NPGSQL DEVELOPMENT TEAM BE LIABLE TO ANY PARTY
-// FOR DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES,
-// INCLUDING LOST PROFITS, ARISING OUT OF THE USE OF THIS SOFTWARE AND ITS
-// DOCUMENTATION, EVEN IF THE NPGSQL DEVELOPMENT TEAM HAS BEEN ADVISED OF
-// THE POSSIBILITY OF SUCH DAMAGE.
-//
-// THE NPGSQL DEVELOPMENT TEAM SPECIFICALLY DISCLAIMS ANY WARRANTIES,
-// INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY
-// AND FITNESS FOR A PARTICULAR PURPOSE. THE SOFTWARE PROVIDED HEREUNDER IS
-// ON AN "AS IS" BASIS, AND THE NPGSQL DEVELOPMENT TEAM HAS NO OBLIGATIONS
-// TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
-#endregion
-
-using Npgsql;
+﻿using Npgsql;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -845,6 +822,71 @@ namespace EntityFramework6.Npgsql.Tests
                     + " THEN (E'') WHEN (@p__linq__0 IS NULL) THEN (COALESCE(@p__linq__1,@p__linq__2)) ELSE"
                     + " (@p__linq__0) END  || E'_postfix' AS \"C1\" FROM \"dbo\".\"Blogs\" AS \"Extent1\"",
                     query.ToString());
+            }
+        }
+
+        [Test]
+        public void Test_enum()
+        {
+            using (var context = new BloggingContext(ConnectionString))
+            {
+                context.Database.Log = Console.Out.WriteLine;
+
+                context.ClrEnumEntities.Add(
+                    new ClrEnumEntity
+                    {
+                        TestByte = TestByteEnum.Bar,
+                        TestShort = TestShortEnum.Bar,
+                        TestInt = TestIntEnum.Bar,
+                        TestLong = TestLongEnum.Bar
+                    });
+                context.SaveChanges();
+
+                var query = context.ClrEnumEntities.Where(
+                    x => x.TestByte == TestByteEnum.Bar
+                         && x.TestShort == TestShortEnum.Bar
+                         && x.TestInt == TestIntEnum.Bar
+                         && x.TestLong == TestLongEnum.Bar);
+
+                var result = query.First();
+                Assert.That(result.TestByte, Is.EqualTo(TestByteEnum.Bar));
+                Assert.That(result.TestShort, Is.EqualTo(TestShortEnum.Bar));
+                Assert.That(result.TestInt, Is.EqualTo(TestIntEnum.Bar));
+                Assert.That(result.TestLong, Is.EqualTo(TestLongEnum.Bar));
+            }
+        }
+
+        [Test]
+        public void Test_enum_composite_key()
+        {
+            using (var context = new BloggingContext(ConnectionString))
+            {
+                context.Database.Log = Console.Out.WriteLine;
+
+                context.ClrEnumCompositeKeyEntities.Add(
+                    new ClrEnumCompositeKeyEntity
+                    {
+                        TestByte = TestByteEnum.Bar,
+                        TestShort = TestShortEnum.Bar,
+                        TestInt = TestIntEnum.Bar,
+                        TestLong = TestLongEnum.Bar
+                    });
+                context.SaveChanges();
+            }
+
+            using (var context = new BloggingContext(ConnectionString))
+            {
+                var result = context.ClrEnumCompositeKeyEntities.Find(
+                        TestByteEnum.Bar,
+                        TestShortEnum.Bar,
+                        TestIntEnum.Bar,
+                        TestLongEnum.Bar);
+
+                Assert.That(result, Is.Not.Null);
+                Assert.That(result.TestByte, Is.EqualTo(TestByteEnum.Bar));
+                Assert.That(result.TestShort, Is.EqualTo(TestShortEnum.Bar));
+                Assert.That(result.TestInt, Is.EqualTo(TestIntEnum.Bar));
+                Assert.That(result.TestLong, Is.EqualTo(TestLongEnum.Bar));
             }
         }
     }

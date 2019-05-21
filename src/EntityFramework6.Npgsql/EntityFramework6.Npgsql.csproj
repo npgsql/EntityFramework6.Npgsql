@@ -2,10 +2,10 @@
   <PropertyGroup>
     <Description>PostgreSQL provider for Entity Framework 6</Description>
     <Authors>Shay Rojansky;Emil Lenngren;Francisco Figueiredo Jr.;Kenji Uno</Authors>
-    <Copyright>Copyright 2018 © The Npgsql Development Team</Copyright>
+    <Copyright>Copyright 2019 © The Npgsql Development Team</Copyright>
     <Company>Npgsql</Company>
     <PackageTags>npgsql postgresql postgres data database entity framework ef orm</PackageTags>
-    <VersionPrefix>3.2.0</VersionPrefix>
+    <VersionPrefix>3.2.1</VersionPrefix>
     <LangVersion>latest</LangVersion>
     <TargetFramework>net45</TargetFramework>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -18,7 +18,7 @@
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <PackageProjectUrl>http://www.npgsql.org</PackageProjectUrl>
     <PackageIconUrl>http://www.npgsql.org/img/postgresql.gif</PackageIconUrl>
-    <PackageLicenseUrl>https://raw.githubusercontent.com/npgsql/npgsql/master/LICENSE.txt</PackageLicenseUrl>
+    <PackageLicenseExpression>PostgreSQL</PackageLicenseExpression>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>git://github.com/npgsql/EntityFramework6.Npgsql</RepositoryUrl>
     <Deterministic>true</Deterministic>
@@ -39,7 +39,7 @@
     <Reference Include="System.ComponentModel.DataAnnotations" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Npgsql" Version="4.0.2" />
+    <PackageReference Include="Npgsql" Version="4.0.7" />
     <PackageReference Include="EntityFramework" Version="6.2.0" />
   </ItemGroup>
 </Project>
