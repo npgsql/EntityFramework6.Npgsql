@@ -5,19 +5,20 @@
     <Copyright>Copyright 2019 © The Npgsql Development Team</Copyright>
     <Company>Npgsql</Company>
     <PackageTags>npgsql postgresql postgres data database entity framework ef orm</PackageTags>
-    <VersionPrefix>3.2.1.1</VersionPrefix>
+    <VersionPrefix>6.3.0</VersionPrefix>
     <LangVersion>latest</LangVersion>
-    <TargetFramework>net45</TargetFramework>
+    <TargetFrameworks>net45;netstandard21</TargetFrameworks>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <NoWarn>CS1591</NoWarn>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <RootNamespace>Npgsql</RootNamespace>
+    <AssemblyName>EntityFramework6.Npgsql</AssemblyName>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <AssemblyOriginatorKeyFile>../../Npgsql.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>../Npgsql.snk</AssemblyOriginatorKeyFile>
     <SignAssembly>true</SignAssembly>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
-    <PackageProjectUrl>http://www.npgsql.org</PackageProjectUrl>
-    <PackageIconUrl>http://www.npgsql.org/img/postgresql.gif</PackageIconUrl>
+    <PackageProjectUrl>https://github.com/npgsql/EntityFramework6.Npgsql</PackageProjectUrl>
+    <PackageIcon>postgresql.png</PackageIcon>
     <PackageLicenseExpression>PostgreSQL</PackageLicenseExpression>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>git://github.com/npgsql/EntityFramework6.Npgsql</RepositoryUrl>
@@ -27,9 +28,13 @@
     <EmbeddedResource Include="Resources/*" />
   </ItemGroup>
   <ItemGroup>
-    <None Update="install.ps1" Pack="true" PackagePath="\tools" />
+    <None Include="content/App.config.install.xdt" Pack="true" PackagePath="content/net45" />
+    <None Include="content/App.config.transform" Pack="true" PackagePath="content/net45" />
+    <None Include="content/Web.config.install.xdt" Pack="true" PackagePath="content/net45" />
+    <None Include="content/Web.config.transform" Pack="true" PackagePath="content/net45" />
+    <None Include="postgresql.png" Pack="true" PackagePath="" />
   </ItemGroup>
-  <ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
@@ -39,7 +44,7 @@
     <Reference Include="System.ComponentModel.DataAnnotations" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Npgsql" Version="4.0.7" />
-    <PackageReference Include="EntityFramework" Version="6.2.0" />
+    <PackageReference Include="Npgsql" />
+    <PackageReference Include="EntityFramework" />
   </ItemGroup>
 </Project>

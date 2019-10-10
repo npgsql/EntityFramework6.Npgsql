@@ -5,16 +5,14 @@ VisualStudioVersion = 15.0.27703.2035
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{4A5A60DD-41B6-40BF-B677-227A921ECCC8}"
 	ProjectSection(SolutionItems) = preProject
+		Directory.Build.props = Directory.Build.props
+		Directory.Build.targets = Directory.Build.targets
 		Npgsql.snk = Npgsql.snk
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{8537E50E-CF7F-49CB-B4EF-3E2A1B11F050}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EF6.PG", "EF6.PG\EF6.PG.csproj", "{3EC85CBA-5B79-11E3-8104-0022198AB089}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{ED612DB1-AB32-4603-95E7-891BACA71C39}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EntityFramework6.Npgsql", "src\EntityFramework6.Npgsql\EntityFramework6.Npgsql.csproj", "{3EC85CBA-5B79-11E3-8104-0022198AB089}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EntityFramework6.Npgsql.Tests", "test\EntityFramework6.Npgsql.Tests\EntityFramework6.Npgsql.Tests.csproj", "{4A0A42DE-C8B8-11E4-8EC9-005056A163A4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EF6.PG.Tests", "EF6.PG.Tests\EF6.PG.Tests.csproj", "{4A0A42DE-C8B8-11E4-8EC9-005056A163A4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
