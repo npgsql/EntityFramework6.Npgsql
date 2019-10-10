@@ -1,0 +1,9 @@
+﻿<configuration xmlns:xdt="http://schemas.microsoft.com/XML-Document-Transform">
+  <entityFramework>
+    <defaultConnectionFactory xdt:Transform="Remove" />
+    <defaultConnectionFactory type="Npgsql.NpgsqlConnectionFactory, EntityFramework6.Npgsql" xdt:Transform="Insert" />
+    <providers>
+      <provider invariantName="Npgsql" type="Npgsql.NpgsqlServices, EntityFramework6.Npgsql" xdt:Transform="InsertIfMissing" xdt:Locator="Match(invariantName)" />
+    </providers>
+  </entityFramework>
+</configuration>

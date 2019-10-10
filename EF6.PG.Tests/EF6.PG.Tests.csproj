@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <TargetFrameworks>net45;netcoreapp3.0</TargetFrameworks>
+    <RootNamespace>EntityFramework6.Npgsql.Tests</RootNamespace>
+    <AssemblyName>EntityFramework6.Npgsql.Tests</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="EntityFramework" />
+    <PackageReference Include="NUnit" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="NUnit3TestAdapter" />
+    <PackageReference Include="NLog" />
+    <PackageReference Include="Npgsql.LegacyPostgis" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\EF6.PG\EF6.PG.csproj" />
+  </ItemGroup>
+</Project>
