@@ -1,7 +1,15 @@
 <Project>
-  <ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' != 'net45'">
+    <PackageReference Update="Npgsql" Version="4.1.2" />
+    <PackageReference Update="Npgsql.LegacyPostgis" Version="4.1.2" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net45'">
     <PackageReference Update="Npgsql" Version="4.0.10" />
     <PackageReference Update="Npgsql.LegacyPostgis" Version="4.0.10" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Update="EntityFramework" Version="6.3.0" />
 
     <PackageReference Update="NUnit" Version="3.12.0" />
