@@ -5,9 +5,9 @@
     <Copyright>Copyright 2019 © The Npgsql Development Team</Copyright>
     <Company>Npgsql</Company>
     <PackageTags>npgsql postgresql postgres data database entity framework ef orm</PackageTags>
-    <VersionPrefix>6.3.0</VersionPrefix>
+    <VersionPrefix>6.4.0</VersionPrefix>
     <LangVersion>latest</LangVersion>
-    <TargetFrameworks>net45;netstandard21</TargetFrameworks>
+    <TargetFrameworks>net45;net461;netstandard21</TargetFrameworks>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <NoWarn>CS1591</NoWarn>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -34,7 +34,7 @@
     <None Include="content/Web.config.transform" Pack="true" PackagePath="content/net45" />
     <None Include="postgresql.png" Pack="true" PackagePath="" />
   </ItemGroup>
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net45' Or '$(TargetFramework)' == 'net461' ">
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
