@@ -642,7 +642,15 @@ namespace Npgsql.SqlGenerators
         }
 
         public override VisitedExpression Visit([NotNull] DbIsNullExpression expression)
-            => OperatorExpression.Build(Operator.IsNull, _useNewPrecedences, expression.Argument.Accept(this));
+        {
+            if (expression.Argument.ExpressionKind == DbExpressionKind.ParameterReference &&
+                (expression.Argument.ResultType.EdmType as PrimitiveType)?.PrimitiveTypeKind == PrimitiveTypeKind.String)
+            {
+                var castedParameterExpression = new CastExpression(expression.Argument.Accept(this), "varchar");
+                return OperatorExpression.Build(Operator.IsNull, _useNewPrecedences, castedParameterExpression);
+            }
+            return OperatorExpression.Build(Operator.IsNull, _useNewPrecedences, expression.Argument.Accept(this));
+        }
 
         // NOT EXISTS
         public override VisitedExpression Visit([NotNull] DbIsEmptyExpression expression)

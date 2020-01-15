@@ -54,7 +54,11 @@ namespace EntityFramework6.Npgsql.Tests
                 }
                 var someParameter = "Some";
                 Assert.IsTrue(context.Posts.Any(p => p.Title.StartsWith(someParameter)));
+                Assert.IsTrue(context.Posts.All(p => p.Title != null));
+                Assert.IsTrue(context.Posts.Any(p => someParameter != null));
                 Assert.IsTrue(context.Posts.Select(p => p.VarbitColumn == varbitVal).First());
+                Assert.IsTrue(context.Posts.All(p => p.VarbitColumn != null));
+                Assert.IsTrue(context.Posts.Any(p => varbitVal != null));
                 Assert.IsTrue(context.Posts.Select(p => p.VarbitColumn == "10011").First());
                 Assert.AreEqual(1, context.NoColumnsEntities.Count());
             }
@@ -791,7 +795,7 @@ namespace EntityFramework6.Npgsql.Tests
                 Console.WriteLine(query.ToString());
                 StringAssert.AreEqualIgnoringCase(
                     "SELECT  CASE  WHEN (COALESCE(@p__linq__0,E'default_value') IS NULL) THEN (E'')"
-                    + " WHEN (@p__linq__0 IS NULL) THEN (E'default_value') ELSE (@p__linq__0) END  ||"
+                    + " WHEN (CAST (@p__linq__0 AS varchar) IS NULL) THEN (E'default_value') ELSE (@p__linq__0) END  ||"
                     + " E'_postfix' AS \"C1\" FROM \"dbo\".\"Blogs\" AS \"Extent1\"",
                     query.ToString());
             }
@@ -819,7 +823,7 @@ namespace EntityFramework6.Npgsql.Tests
                 Console.WriteLine(query.ToString());
                 StringAssert.AreEqualIgnoringCase(
                     "SELECT  CASE  WHEN (COALESCE(@p__linq__0,COALESCE(@p__linq__1,@p__linq__2)) IS NULL)"
-                    + " THEN (E'') WHEN (@p__linq__0 IS NULL) THEN (COALESCE(@p__linq__1,@p__linq__2)) ELSE"
+                    + " THEN (E'') WHEN (CAST (@p__linq__0 AS varchar) IS NULL) THEN (COALESCE(@p__linq__1,@p__linq__2)) ELSE"
                     + " (@p__linq__0) END  || E'_postfix' AS \"C1\" FROM \"dbo\".\"Blogs\" AS \"Extent1\"",
                     query.ToString());
             }
