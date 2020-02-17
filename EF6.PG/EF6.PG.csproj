@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Description>PostgreSQL provider for Entity Framework 6</Description>
     <Authors>Shay Rojansky;Emil Lenngren;Francisco Figueiredo Jr.;Kenji Uno</Authors>
-    <Copyright>Copyright 2019 © The Npgsql Development Team</Copyright>
+    <Copyright>Copyright 2020 © The Npgsql Development Team</Copyright>
     <Company>Npgsql</Company>
     <PackageTags>npgsql postgresql postgres data database entity framework ef orm</PackageTags>
     <VersionPrefix>6.4.1</VersionPrefix>
