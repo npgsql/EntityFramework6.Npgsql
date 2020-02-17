@@ -78,7 +78,7 @@
         c.condeferrable as is_deferrable,
         c.condeferred as is_initially_deferred,
         c.contype as constraint_type,
-        c.consrc as expression,
+        pg_get_expr(c.conbin, c.conrelid) as expression,
         case c.confupdtype
           when 'c' then 'CASCADE'
           when 'n' then 'SET NULL'
