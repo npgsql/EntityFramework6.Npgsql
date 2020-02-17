@@ -29,9 +29,15 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="content/App.config.install.xdt" Pack="true" PackagePath="content/net45" />
-    <None Include="content/App.config.transform" Pack="true" PackagePath="content/net45" />
+    <None Include="content/net45/App.config.transform" Pack="true" PackagePath="content/net45" />
     <None Include="content/Web.config.install.xdt" Pack="true" PackagePath="content/net45" />
-    <None Include="content/Web.config.transform" Pack="true" PackagePath="content/net45" />
+    <None Include="content/net45/Web.config.transform" Pack="true" PackagePath="content/net45" />
+
+    <None Include="content/App.config.install.xdt" Pack="true" PackagePath="content/net461" />
+    <None Include="content/net461/App.config.transform" Pack="true" PackagePath="content/net461" />
+    <None Include="content/Web.config.install.xdt" Pack="true" PackagePath="content/net461" />
+    <None Include="content/net461/Web.config.transform" Pack="true" PackagePath="content/net461" />
+    
     <None Include="postgresql.png" Pack="true" PackagePath="" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net45' Or '$(TargetFramework)' == 'net461' ">
