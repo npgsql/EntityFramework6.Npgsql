@@ -889,5 +889,30 @@ namespace EntityFramework6.Npgsql.Tests
                 Assert.That(result.TestLong, Is.EqualTo(TestLongEnum.Bar));
             }
         }
+
+        [Test]
+        public void Test_non_composable_function()
+        {
+            using (var context = new BloggingContext(ConnectionString))
+            {
+                context.Database.Log = Console.Out.WriteLine;
+
+                // Add some data and query it back using Stored Function
+                context.Blogs.Add(new Blog
+                {
+                    Name = "Some blog1 name",
+                    Posts = new List<Post>()
+                });
+                context.SaveChanges();
+
+                // Query back
+                var nameParameter = new ObjectParameter("Name", "blog1");
+                var blogs = ((IObjectContextAdapter)context).ObjectContext.ExecuteFunction<Blog>("GetBlogsByName2", nameParameter).ToArray();
+
+                Assert.AreEqual(1, blogs.Length);
+                Assert.AreEqual("Some blog1 name", blogs[0].Name);
+            }
+        }
+
     }
 }
