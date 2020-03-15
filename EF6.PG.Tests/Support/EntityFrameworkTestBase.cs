@@ -38,6 +38,7 @@ namespace EntityFramework6.Npgsql.Tests
                 createSequenceConn.ExecuteNonQuery("CREATE OR REPLACE FUNCTION \"dbo\".\"StoredAddFunction\"(integer, integer) RETURNS integer AS $$ SELECT $1 + $2; $$ LANGUAGE SQL;");
                 createSequenceConn.ExecuteNonQuery("CREATE OR REPLACE FUNCTION \"dbo\".\"StoredEchoFunction\"(integer) RETURNS integer AS $$ SELECT $1; $$ LANGUAGE SQL;");
                 createSequenceConn.ExecuteNonQuery("CREATE OR REPLACE FUNCTION \"dbo\".\"GetBlogsByName\"(text) RETURNS TABLE(\"BlogId\" int, \"Name\" text, \"IntComputedValue\" int) as $$ select \"BlogId\", \"Name\", \"IntComputedValue\" from \"dbo\".\"Blogs\" where \"Name\" ilike '%' || $1 || '%' $$ LANGUAGE SQL;");
+                createSequenceConn.ExecuteNonQuery("CREATE OR REPLACE FUNCTION \"dbo\".\"GetBlogsByName2\"(text) RETURNS TABLE(\"BlogId\" int, \"Name\" text, \"IntComputedValue\" int) as $$ select \"BlogId\", \"Name\", \"IntComputedValue\" from \"dbo\".\"Blogs\" where \"Name\" ilike '%' || $1 || '%' $$ LANGUAGE SQL;");
             }
         }
 
@@ -336,8 +337,71 @@ namespace EntityFramework6.Npgsql.Tests
                     new FunctionImportResultMapping(),
                     dbModel.ConceptualToStoreMapping));
 
+
+            var getBlogs2Func = EdmFunction.Create(
+                "GetBlogsByName2",
+                "BloggingContext",
+                DataSpace.SSpace,
+                new EdmFunctionPayload
+                {
+                    ParameterTypeSemantics = ParameterTypeSemantics.AllowImplicitConversion,
+                    Schema = "dbo",
+                    IsComposable = false,
+                    IsNiladic = false,
+                    IsBuiltIn = false,
+                    IsAggregate = false,
+                    StoreFunctionName = "GetBlogsByName2",
+                    ReturnParameters = new[]
+                    {
+                            FunctionParameter.Create("ReturnType1", rowType.GetCollectionType(), ParameterMode.ReturnValue)
+                    },
+                    Parameters = new[]
+                    {
+                            FunctionParameter.Create("Name", stringStoreType, ParameterMode.In)
+                    }
+                },
+                null);
+            dbModel.StoreModel.AddItem(getBlogs2Func);
+
+            EdmFunction getBlogs2FuncModel = EdmFunction.Create(
+                "GetBlogsByName2",
+                dbModel.ConceptualModel.Container.Name,
+                DataSpace.CSpace,
+                new EdmFunctionPayload
+                {
+                    IsFunctionImport = true,
+                    IsComposable = false,
+                    Parameters = new[]
+                    {
+                        FunctionParameter.Create("Name", stringPrimitiveType, ParameterMode.In)
+                    },
+                    ReturnParameters = new[]
+                    {
+                        FunctionParameter.Create("ReturnType1", modelBlogConceptualType.GetCollectionType(), ParameterMode.ReturnValue)
+                    },
+                    EntitySets = new[]
+                    {
+                        dbModel.ConceptualModel.Container.EntitySets.First(x => x.ElementType == modelBlogConceptualType)
+                    }
+                },
+                null);
+            dbModel.ConceptualModel.Container.AddFunctionImport(getBlogs2FuncModel);
+
+            dbModel.ConceptualToStoreMapping.AddFunctionImportMapping(new FunctionImportMappingNonComposable(
+                    getBlogs2FuncModel,
+                    getBlogs2Func,
+                    new FunctionImportResultMapping[] { },
+                    dbModel.ConceptualToStoreMapping));
+
+
             var compiledModel = dbModel.Compile();
             return compiledModel;
+        }
+
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+            //modelBuilder.Conventions.Add(new FunctionsConvention<MyContext>("dbo"));
+            base.OnModelCreating(modelBuilder);
         }
     }
 }
