@@ -935,7 +935,6 @@ namespace Npgsql.SqlGenerators
         {
             if (function.NamespaceName == "Edm")
             {
-                VisitedExpression arg;
                 switch (function.Name)
                 {
                 // string functions
@@ -944,21 +943,17 @@ namespace Npgsql.SqlGenerators
                     return OperatorExpression.Build(Operator.Concat, _useNewPrecedences, args[0].Accept(this), args[1].Accept(this));
                 case "Contains":
                     Debug.Assert(args.Count == 2);
-                    var contains = new FunctionExpression("position");
-                    arg = args[1].Accept(this);
-                    arg.Append(" in ");
-                    arg.Append(args[0].Accept(this));
-                    contains.AddArgument(arg);
+                    var contains = new FunctionExpression("strpos");
+                    contains.AddArgument(args[0].Accept(this));
+                    contains.AddArgument(args[1].Accept(this));
                     // if position returns zero, then contains is false
                     return OperatorExpression.Build(Operator.GreaterThan, _useNewPrecedences, contains, new LiteralExpression("0"));
                 // case "EndsWith": - depends on a reverse function to be able to implement with parameterized queries
                 case "IndexOf":
                     Debug.Assert(args.Count == 2);
-                    var indexOf = new FunctionExpression("position");
-                    arg = args[0].Accept(this);
-                    arg.Append(" in ");
-                    arg.Append(args[1].Accept(this));
-                    indexOf.AddArgument(arg);
+                    var indexOf = new FunctionExpression("strpos");
+                    indexOf.AddArgument(args[1].Accept(this));
+                    indexOf.AddArgument(args[0].Accept(this));
                     return indexOf;
                 case "Left":
                     Debug.Assert(args.Count == 2);
@@ -995,11 +990,9 @@ namespace Npgsql.SqlGenerators
                     return Substring(args[0].Accept(this), args[1].Accept(this), args[2].Accept(this));
                 case "StartsWith":
                     Debug.Assert(args.Count == 2);
-                    var startsWith = new FunctionExpression("position");
-                    arg = args[1].Accept(this);
-                    arg.Append(" in ");
-                    arg.Append(args[0].Accept(this));
-                    startsWith.AddArgument(arg);
+                    var startsWith = new FunctionExpression("strpos");
+                    startsWith.AddArgument(args[0].Accept(this));
+                    startsWith.AddArgument(args[1].Accept(this));
                     return OperatorExpression.Build(Operator.Equals, _useNewPrecedences, startsWith, new LiteralExpression("1"));
                 case "ToLower":
                     return StringModifier("lower", args);
