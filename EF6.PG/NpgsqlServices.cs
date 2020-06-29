@@ -60,6 +60,11 @@ namespace Npgsql
         // Npgsql > 4.0 does strict type checks on integral values and fails with enums passed with numeric DbType.
         static void ConvertValueToNumericIfEnum(DbParameter parameter)
         {
+            if (parameter.Value == null)
+            {
+                return;
+            }
+
             var parameterValueObjectType = parameter.Value.GetType();
 
             if (!parameterValueObjectType.IsEnum)
