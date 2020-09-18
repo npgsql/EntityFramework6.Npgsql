@@ -551,6 +551,11 @@ namespace Npgsql
                     break;
                 }
             }
+            else if (column.IsNullable != null && !column.IsNullable.Value && column.ClrDefaultValue != null)
+            {
+                sql.Append(" DEFAULT ");
+                AppendValue(column.ClrDefaultValue, sql);
+            }            
         }
 
         void AppendColumnType(ColumnModel column, StringBuilder sql, bool setSerial)
