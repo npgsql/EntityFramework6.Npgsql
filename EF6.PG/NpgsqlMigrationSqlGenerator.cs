@@ -551,7 +551,7 @@ namespace Npgsql
                     break;
                 }
             }
-            else if (column.IsNullable != null && !column.IsNullable.Value && column.ClrDefaultValue != null)
+            else if (column.IsNullable == false && column.ClrDefaultValue != null)
             {
                 sql.Append(" DEFAULT ");
                 AppendValue(column.ClrDefaultValue, sql);
