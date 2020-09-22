@@ -365,7 +365,7 @@ namespace EntityFramework6.Npgsql.Tests
                 Assert.AreEqual("CREATE SCHEMA IF NOT EXISTS \"someSchema\"", statments.ElementAt(0).Sql);
             else
                 Assert.AreEqual("CREATE SCHEMA \"someSchema\"", statments.ElementAt(0).Sql);
-            Assert.AreEqual("CREATE TABLE \"someSchema\".\"someTable\"(\"SomeString\" varchar(233) NOT NULL,\"AnotherString\" text,\"SomeBytes\" bytea,\"SomeLong\" serial8,\"SomeDateTime\" timestamp)", statments.ElementAt(1).Sql);
+            Assert.AreEqual("CREATE TABLE \"someSchema\".\"someTable\"(\"SomeString\" varchar(233) NOT NULL DEFAULT '',\"AnotherString\" text,\"SomeBytes\" bytea,\"SomeLong\" serial8,\"SomeDateTime\" timestamp)", statments.ElementAt(1).Sql);
         }
 
         [Test]
