@@ -239,7 +239,7 @@ namespace EntityFramework6.Npgsql.Tests
             }));
             var statments = new NpgsqlMigrationSqlGenerator().Generate(operations, _backendVersion.ToString());
             Assert.AreEqual(1, statments.Count());
-            Assert.AreEqual("ALTER TABLE \"tableName\" ADD \"columnName\" float8 DEFAULT 0", statments.ElementAt(0).Sql);
+            Assert.AreEqual("ALTER TABLE \"tableName\" ADD \"columnName\" float8", statments.ElementAt(0).Sql);
         }
 
         [Test]
