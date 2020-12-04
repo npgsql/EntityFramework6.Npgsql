@@ -151,6 +151,28 @@ namespace EntityFramework6.Npgsql.Tests
             }
         }
 
+        [Test]
+        public void Select_Ef_Timezone()
+        {
+            var createdOnDate = new DateTimeOffset(2020, 12, 03, 22, 23, 0, TimeSpan.Zero);
+            using (var context = new BloggingContext(ConnectionString))
+            {
+                context.Logs.Add(new Log()
+                {
+                    CreationDate = createdOnDate
+                });
+                context.SaveChanges();
+            }
+
+            using (var context = new BloggingContext(ConnectionString))
+            {
+                context.Database.ExecuteSqlCommand("SET TIMEZONE='UTC';");
+                var query = context.Logs.Select(p => NpgsqlDateTimeFunctions.Timezone("Pacific/Honolulu", p.CreationDate));
+                var createdOnDateInTimeZone = query.FirstOrDefault();
+                Assert.AreEqual(new DateTime(2020, 12, 03, 12, 23, 0), createdOnDateInTimeZone);
+            }
+        }
+
 		[Test]
 		public void SelectWithLike_SpecialCharacters()
 		{

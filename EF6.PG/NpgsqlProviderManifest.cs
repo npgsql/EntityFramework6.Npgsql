@@ -320,7 +320,7 @@ namespace Npgsql
         public override bool SupportsInExpression() => true;
 
         public override ReadOnlyCollection<EdmFunction> GetStoreFunctions()
-            => new[] { typeof(NpgsqlTextFunctions).GetTypeInfo(), typeof(NpgsqlTypeFunctions) }
+            => new[] { typeof(NpgsqlTextFunctions).GetTypeInfo(), typeof(NpgsqlTypeFunctions), typeof(NpgsqlDateTimeFunctions) }
                 .SelectMany(x => x.GetMethods(BindingFlags.Public | BindingFlags.Static))
                 .Select(x => new { Method = x, DbFunction = x.GetCustomAttribute<DbFunctionAttribute>() })
                 .Where(x => x.DbFunction != null)

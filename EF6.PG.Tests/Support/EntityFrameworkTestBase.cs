@@ -51,6 +51,7 @@ namespace EntityFramework6.Npgsql.Tests
             {
                 context.Blogs.RemoveRange(context.Blogs);
                 context.Posts.RemoveRange(context.Posts);
+                context.Logs.RemoveRange(context.Logs);
                 context.NoColumnsEntities.RemoveRange(context.NoColumnsEntities);
                 context.SaveChanges();
             }
@@ -78,6 +79,12 @@ namespace EntityFramework6.Npgsql.Tests
         public string VarbitColumn { get; set; }
         public int BlogId { get; set; }
         public virtual Blog Blog { get; set; }
+    }
+
+    public class Log
+    {
+        public int Id { get; set; }
+        public DateTimeOffset CreationDate { get; set; }
     }
 
     public class ClrEnumEntity
@@ -156,6 +163,7 @@ namespace EntityFramework6.Npgsql.Tests
 
         public DbSet<Blog> Blogs { get; set; }
         public DbSet<Post> Posts { get; set; }
+        public DbSet<Log> Logs { get; set; }
         public DbSet<NoColumnsEntity> NoColumnsEntities { get; set; }
         public DbSet<ClrEnumEntity> ClrEnumEntities { get; set; }
         public DbSet<ClrEnumCompositeKeyEntity> ClrEnumCompositeKeyEntities { get; set; }
@@ -191,6 +199,7 @@ namespace EntityFramework6.Npgsql.Tests
             // Import Sets
             dbModelBuilder.Entity<Blog>();
             dbModelBuilder.Entity<Post>();
+            dbModelBuilder.Entity<Log>();
             dbModelBuilder.Entity<NoColumnsEntity>();
             dbModelBuilder.Entity<ClrEnumEntity>();
             dbModelBuilder.Entity<ClrEnumCompositeKeyEntity>();
