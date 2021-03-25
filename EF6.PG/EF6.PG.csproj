@@ -5,7 +5,7 @@
     <Copyright>Copyright 2019 © The Npgsql Development Team</Copyright>
     <Company>Npgsql</Company>
     <PackageTags>npgsql postgresql postgres data database entity framework ef orm</PackageTags>
-    <VersionPrefix>6.4.1</VersionPrefix>
+    <VersionPrefix>6.4.3</VersionPrefix>
     <LangVersion>latest</LangVersion>
     <TargetFrameworks>net45;net461;netstandard21</TargetFrameworks>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -23,6 +23,8 @@
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>git://github.com/npgsql/EntityFramework6.Npgsql</RepositoryUrl>
     <Deterministic>true</Deterministic>
+    <PackageId>SureWx.EntityFramework6.Npgsql</PackageId>
+    <Version>6.4.3</Version>
   </PropertyGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources/*" />

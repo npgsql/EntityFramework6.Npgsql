@@ -936,6 +936,40 @@ namespace Npgsql.SqlGenerators
                 aggregate.AddArgument(aggregateArg);
                 return new CastExpression(aggregate, GetDbType(functionAggregate.ResultType.EdmType));
             }
+
+            if (functionAggregate.Function.NamespaceName == "NpgsqlAggregateFunctions")
+            {
+                FunctionExpression aggregate;
+                try
+                {
+                    aggregate = new FunctionExpression(functionAggregate.Function.StoreFunctionNameAttribute);
+                }
+                catch (KeyNotFoundException)
+                {
+                    throw new NotSupportedException();
+                }
+                Debug.Assert(functionAggregate.Arguments.Count == 1);
+                VisitedExpression aggregateArg;
+                if (functionAggregate.Distinct)
+                {
+                    aggregateArg = new LiteralExpression("DISTINCT ");
+                    ((LiteralExpression)aggregateArg).Append(functionAggregate.Arguments[0].Accept(this));
+                }
+                else
+                {
+                    aggregateArg = functionAggregate.Arguments[0].Accept(this);
+                }
+                aggregate.AddArgument(aggregateArg);
+
+                if (functionAggregate.Function.Name == "StringAgg")
+                {
+                    // HACK add second argument, since EF doesn't support more than one argument for aggregate functions
+                    aggregate.AddArgument(new ConstantExpression(", ", functionAggregate.ResultType));
+                }
+
+                return new CastExpression(aggregate, GetDbType(functionAggregate.ResultType.EdmType));
+            }
+
             throw new NotSupportedException();
         }
 

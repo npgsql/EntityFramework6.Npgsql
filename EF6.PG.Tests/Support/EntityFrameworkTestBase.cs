@@ -12,6 +12,8 @@ using System.Data.Entity.Core.Mapping;
 using System.Data.Entity.Core.Metadata.Edm;
 using System.Data.Entity.Core.Objects;
 using System.Data.Entity.Infrastructure;
+using System.Data.Entity.ModelConfiguration.Conventions;
+using System.Reflection;
 using NpgsqlTypes;
 
 // ReSharper disable once CheckNamespace
@@ -170,7 +172,7 @@ namespace EntityFramework6.Npgsql.Tests
         public DbSet<User> Users { get; set; }
         public DbSet<Editor> Editors { get; set; }
         public DbSet<Administrator> Administrators { get; set; }
-
+        
         [DbFunction("BloggingContext", "ClrStoredAddFunction")]
         public static int StoredAddFunction(int val1, int val2)
         {
@@ -191,7 +193,7 @@ namespace EntityFramework6.Npgsql.Tests
             return ((IObjectContextAdapter)this).ObjectContext.CreateQuery<Blog>(
                 $"[GetBlogsByName](@Name)", nameParameter);
         }
-
+        
         private static DbCompiledModel CreateModel(NpgsqlConnection connection)
         {
             var dbModelBuilder = new DbModelBuilder(DbModelBuilderVersion.Latest);
@@ -210,6 +212,9 @@ namespace EntityFramework6.Npgsql.Tests
             // Import function
             var dbModel = dbModelBuilder.Build(connection);
             var edmType = PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.Int32);
+
+            //these parameter types need to match both the database method and the C# method for EF to link
+            var edmStringType = PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.String);
 
             var addFunc = EdmFunction.Create(
                 "ClrStoredAddFunction",

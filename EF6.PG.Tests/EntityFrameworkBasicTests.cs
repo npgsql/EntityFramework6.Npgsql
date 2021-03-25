@@ -173,6 +173,55 @@ namespace EntityFramework6.Npgsql.Tests
             }
         }
 
+        [Test]
+        public void Select_Ef_StringAgg()
+        {
+            DateTime createdOnDate = new DateTime(2014, 05, 08);
+            using (var context = new BloggingContext(ConnectionString))
+            {
+                var blog = new Blog()
+                {
+                    Name = "Blog 1"
+                };
+                blog.Posts = new List<Post>();
+
+                blog.Posts.Add(new Post()
+                {
+                    Content = "Content 1",
+                    Rating = 1,
+                    Title = "Title 1",
+                    CreationDate = createdOnDate
+                });
+                blog.Posts.Add(new Post()
+                {
+                    Content = "Content 2",
+                    Rating = 2,
+                    Title = "Title 2",
+                    CreationDate = createdOnDate
+                });
+                blog.Posts.Add(new Post()
+                {
+                    Content = "Content 3",
+                    Rating = 3,
+                    Title = "Title 3",
+                    CreationDate = createdOnDate
+                });
+
+                context.Blogs.Add(blog);
+                context.SaveChanges();
+            }
+
+            using (var context = new BloggingContext(ConnectionString))
+            {
+                context.Database.Initialize(true);
+                var query = context.Posts
+                    .GroupBy(p => p.BlogId)
+                    .Select(g => g.Select(x => x.Title).StringAgg());
+                var result = query.FirstOrDefault();
+                Assert.AreEqual("Title 1, Title 2, Title 3", result);
+            }
+        }
+
 		[Test]
 		public void SelectWithLike_SpecialCharacters()
 		{
