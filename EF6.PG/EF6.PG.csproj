@@ -5,7 +5,7 @@
     <Copyright>Copyright 2020 © The Npgsql Development Team</Copyright>
     <Company>Npgsql</Company>
     <PackageTags>npgsql postgresql postgres data database entity framework ef orm</PackageTags>
-    <VersionPrefix>6.4.1</VersionPrefix>
+    <VersionPrefix>6.4.2</VersionPrefix>
     <LangVersion>latest</LangVersion>
     <TargetFrameworks>net45;net461;netstandard21</TargetFrameworks>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
