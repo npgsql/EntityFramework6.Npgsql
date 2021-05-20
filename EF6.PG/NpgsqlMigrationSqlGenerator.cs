@@ -81,7 +81,13 @@ namespace Npgsql
                 else if (migrationOperation is RenameColumnOperation renameColumnOperation)
                     Convert(renameColumnOperation);
                 else if (migrationOperation is UpdateDatabaseOperation databaseOperation)
-                    Convert(databaseOperation.Migrations as IEnumerable<MigrationOperation>);
+                {
+                    if (databaseOperation.Migrations is IEnumerable<MigrationOperation> migrationOperations)
+                        Convert(migrationOperations);
+                    if (databaseOperation.Migrations is IEnumerable<UpdateDatabaseOperation.Migration> migrations)
+                        foreach (var migration in migrations)
+                            Convert(migration.Operations);
+                }
                 else
                     throw new NotImplementedException("Unhandled MigrationOperation " + migrationOperation.GetType().Name + " in " + GetType().Name);
             }
