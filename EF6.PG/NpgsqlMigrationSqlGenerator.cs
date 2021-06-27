@@ -292,6 +292,11 @@ namespace Npgsql
                         throw new NotImplementedException("Not supporting creating IsIdentity for " + alterColumnOperation.Column.Type);
                 }
             }
+            else if(alterColumnOperation.Column.IsNullable==false && alterColumnOperation.Column.ClrDefaultValue != null)
+            {
+                sql.Append(" SET DEFAULT ");
+                AppendValue(alterColumnOperation.Column.ClrDefaultValue, sql);
+            }
             else
                 sql.Append(" DROP DEFAULT");
             AddStatment(sql);
@@ -551,6 +556,11 @@ namespace Npgsql
                     break;
                 }
             }
+            else if (column.IsNullable == false && column.ClrDefaultValue != null)
+            {
+                sql.Append(" DEFAULT ");
+                AppendValue(column.ClrDefaultValue, sql);
+            }            
         }
 
         void AppendColumnType(ColumnModel column, StringBuilder sql, bool setSerial)
