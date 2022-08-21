@@ -221,6 +221,20 @@ namespace EntityFramework6.Npgsql.Tests
             var operations = new List<MigrationOperation>();
             operations.Add(new AddColumnOperation("tableName", new ColumnModel(PrimitiveTypeKind.Double)
             {
+                Name = "columnName",
+                IsNullable = false
+            }));
+            var statments = new NpgsqlMigrationSqlGenerator().Generate(operations, _backendVersion.ToString());
+            Assert.AreEqual(1, statments.Count());
+            Assert.AreEqual("ALTER TABLE \"tableName\" ADD \"columnName\" float8 NOT NULL DEFAULT 0", statments.ElementAt(0).Sql);
+        }
+
+        [Test]
+        public void AddColumnOperationNullable()
+        {
+            var operations = new List<MigrationOperation>();
+            operations.Add(new AddColumnOperation("tableName", new ColumnModel(PrimitiveTypeKind.Double)
+            {
                 Name = "columnName"
             }));
             var statments = new NpgsqlMigrationSqlGenerator().Generate(operations, _backendVersion.ToString());
@@ -262,7 +276,23 @@ namespace EntityFramework6.Npgsql.Tests
             var operations = new List<MigrationOperation>();
             operations.Add(new AlterColumnOperation("tableName", new ColumnModel(PrimitiveTypeKind.Double)
             {
-                Name = "columnName"
+                Name = "columnName",
+                IsNullable = false
+            }, false));
+            var statments = new NpgsqlMigrationSqlGenerator().Generate(operations, _backendVersion.ToString());
+            Assert.AreEqual(3, statments.Count());
+            Assert.AreEqual("ALTER TABLE \"tableName\" ALTER COLUMN \"columnName\" TYPE float8", statments.ElementAt(0).Sql);
+            Assert.AreEqual("ALTER TABLE \"tableName\" ALTER COLUMN \"columnName\" SET NOT NULL", statments.ElementAt(1).Sql);
+            Assert.AreEqual("ALTER TABLE \"tableName\" ALTER COLUMN \"columnName\" SET DEFAULT 0", statments.ElementAt(2).Sql);
+        }
+
+        [Test]
+        public void AlterColumnOperationNullable()
+        {
+            var operations = new List<MigrationOperation>();
+            operations.Add(new AlterColumnOperation("tableName", new ColumnModel(PrimitiveTypeKind.Double)
+            {
+                Name = "columnName",
             }, false));
             var statments = new NpgsqlMigrationSqlGenerator().Generate(operations, _backendVersion.ToString());
             Assert.AreEqual(3, statments.Count());
@@ -335,7 +365,7 @@ namespace EntityFramework6.Npgsql.Tests
                 Assert.AreEqual("CREATE SCHEMA IF NOT EXISTS \"someSchema\"", statments.ElementAt(0).Sql);
             else
                 Assert.AreEqual("CREATE SCHEMA \"someSchema\"", statments.ElementAt(0).Sql);
-            Assert.AreEqual("CREATE TABLE \"someSchema\".\"someTable\"(\"SomeString\" varchar(233) NOT NULL,\"AnotherString\" text,\"SomeBytes\" bytea,\"SomeLong\" serial8,\"SomeDateTime\" timestamp)", statments.ElementAt(1).Sql);
+            Assert.AreEqual("CREATE TABLE \"someSchema\".\"someTable\"(\"SomeString\" varchar(233) NOT NULL DEFAULT '',\"AnotherString\" text,\"SomeBytes\" bytea,\"SomeLong\" serial8,\"SomeDateTime\" timestamp)", statments.ElementAt(1).Sql);
         }
 
         [Test]
