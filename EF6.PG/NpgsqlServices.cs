@@ -114,7 +114,7 @@ namespace Npgsql
 
             var serverVersion = "";
             UsingPostgresDbConnection((NpgsqlConnection)connection, conn => {
-                serverVersion = conn.ServerVersion;
+                serverVersion = conn.PostgreSqlVersion.ToString();
             });
             return serverVersion;
         }
