@@ -110,6 +110,46 @@ namespace EntityFramework6.Npgsql.Tests
         }
 
         [Test]
+        public void Contains()
+        {
+            using (var context = new BloggingContext(ConnectionString))
+            {
+                context.Blogs.Add(new Blog
+                {
+                    Name = "foo blog"
+                });
+                context.SaveChanges();
+            }
+
+            using (var context = new BloggingContext(ConnectionString))
+            {
+                var searchTerms = new[] { "foo", "bar" };
+                var matches = context.Blogs.Count(b => searchTerms.Any(t => b.Name.Contains(t)));
+                Assert.AreEqual(1, matches);
+            }
+        }
+
+        [Test]
+        public void StartsWith()
+        {
+            using (var context = new BloggingContext(ConnectionString))
+            {
+                context.Blogs.Add(new Blog
+                {
+                    Name = "foo blog"
+                });
+                context.SaveChanges();
+            }
+
+            using (var context = new BloggingContext(ConnectionString))
+            {
+                var searchTerms = new[] { "foo", "bar" };
+                var matches = context.Blogs.Count(b => searchTerms.Any(t => b.Name.StartsWith(t)));
+                Assert.AreEqual(1, matches);
+            }
+        }
+
+        [Test]
         public void SelectWithWhere_Ef_TruncateTime()
         {
             DateTime createdOnDate = new DateTime(2014, 05, 08);
