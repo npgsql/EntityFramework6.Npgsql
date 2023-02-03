@@ -107,6 +107,9 @@ namespace Npgsql
             sqlGenerator.BuildCommand(command);
         }
 
+        //Some server instances/npgsql provider versions return additional information after the server version.
+        //This regex is used to extract only version at the beginning of the string
+        private static Regex VersionRx = new Regex(@"^[0-9]+(?:\.[0-9]+){0,3}", RegexOptions.Compiled);
         protected override string GetDbProviderManifestToken([NotNull] DbConnection connection)
         {
             if (connection == null)
@@ -116,7 +119,7 @@ namespace Npgsql
             UsingPostgresDbConnection((NpgsqlConnection)connection, conn => {
                 serverVersion = conn.ServerVersion;
             });
-            return serverVersion;
+            return VersionRx.Match(serverVersion ?? "").ToString();
         }
 
         protected override DbProviderManifest GetDbProviderManifest([NotNull] string versionHint)
