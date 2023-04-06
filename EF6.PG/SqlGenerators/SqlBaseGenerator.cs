@@ -642,7 +642,15 @@ namespace Npgsql.SqlGenerators
         }
 
         public override VisitedExpression Visit([NotNull] DbIsNullExpression expression)
-            => OperatorExpression.Build(Operator.IsNull, _useNewPrecedences, expression.Argument.Accept(this));
+        {
+            if (expression.Argument.ExpressionKind == DbExpressionKind.ParameterReference &&
+                (expression.Argument.ResultType.EdmType as PrimitiveType)?.PrimitiveTypeKind == PrimitiveTypeKind.String)
+            {
+                var castedParameterExpression = new CastExpression(expression.Argument.Accept(this), "varchar");
+                return OperatorExpression.Build(Operator.IsNull, _useNewPrecedences, castedParameterExpression);
+            }
+            return OperatorExpression.Build(Operator.IsNull, _useNewPrecedences, expression.Argument.Accept(this));
+        }
 
         // NOT EXISTS
         public override VisitedExpression Visit([NotNull] DbIsEmptyExpression expression)
@@ -928,6 +936,40 @@ namespace Npgsql.SqlGenerators
                 aggregate.AddArgument(aggregateArg);
                 return new CastExpression(aggregate, GetDbType(functionAggregate.ResultType.EdmType));
             }
+
+            if (functionAggregate.Function.NamespaceName == "NpgsqlAggregateFunctions")
+            {
+                FunctionExpression aggregate;
+                try
+                {
+                    aggregate = new FunctionExpression(functionAggregate.Function.StoreFunctionNameAttribute);
+                }
+                catch (KeyNotFoundException)
+                {
+                    throw new NotSupportedException();
+                }
+                Debug.Assert(functionAggregate.Arguments.Count == 1);
+                VisitedExpression aggregateArg;
+                if (functionAggregate.Distinct)
+                {
+                    aggregateArg = new LiteralExpression("DISTINCT ");
+                    ((LiteralExpression)aggregateArg).Append(functionAggregate.Arguments[0].Accept(this));
+                }
+                else
+                {
+                    aggregateArg = functionAggregate.Arguments[0].Accept(this);
+                }
+                aggregate.AddArgument(aggregateArg);
+
+                if (functionAggregate.Function.Name == "StringAgg")
+                {
+                    // HACK add second argument, since EF doesn't support more than one argument for aggregate functions
+                    aggregate.AddArgument(new ConstantExpression(", ", functionAggregate.ResultType));
+                }
+
+                return new CastExpression(aggregate, GetDbType(functionAggregate.ResultType.EdmType));
+            }
+
             throw new NotSupportedException();
         }
 

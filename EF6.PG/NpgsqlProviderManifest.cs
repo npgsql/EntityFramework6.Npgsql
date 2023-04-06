@@ -320,14 +320,36 @@ namespace Npgsql
         public override bool SupportsInExpression() => true;
 
         public override ReadOnlyCollection<EdmFunction> GetStoreFunctions()
-            => new[] { typeof(NpgsqlTextFunctions).GetTypeInfo(), typeof(NpgsqlTypeFunctions) }
+            => new[] { typeof(NpgsqlTextFunctions).GetTypeInfo(), typeof(NpgsqlTypeFunctions), typeof(NpgsqlDateTimeFunctions) }
                 .SelectMany(x => x.GetMethods(BindingFlags.Public | BindingFlags.Static))
                 .Select(x => new { Method = x, DbFunction = x.GetCustomAttribute<DbFunctionAttribute>() })
                 .Where(x => x.DbFunction != null)
                 .Select(x => CreateComposableEdmFunction(x.Method, x.DbFunction))
+                .Union(new []
+                {
+                    EdmFunction.Create("StringAgg", "NpgsqlAggregateFunctions", DataSpace.SSpace, new EdmFunctionPayload
+                    {
+                        ParameterTypeSemantics = ParameterTypeSemantics.AllowImplicitConversion,
+                        IsComposable = true,
+                        IsAggregate = true,
+                        Schema = "",
+                        IsFromProviderManifest = true,
+                        IsBuiltIn = true,
+                        StoreFunctionName = "string_agg",
+                        ReturnParameters = new[]
+                        {
+                            FunctionParameter.Create("ReturnType", PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.String), ParameterMode.ReturnValue)
+                        },
+                        Parameters = new[]
+                        {
+                            FunctionParameter.Create("input", PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.String).GetEdmPrimitiveType().GetCollectionType(), ParameterMode.In),
+                            //FunctionParameter.Create("separator", PrimitiveType.GetEdmPrimitiveType(PrimitiveTypeKind.String), ParameterMode.In),
+                        },
+                    }, null), 
+                })
                 .ToList()
                 .AsReadOnly();
-
+        
         static EdmFunction CreateComposableEdmFunction([NotNull] MethodInfo method, [NotNull] DbFunctionAttribute dbFunctionInfo)
         {
             if (method == null)

@@ -23,6 +23,8 @@
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>git://github.com/npgsql/EntityFramework6.Npgsql</RepositoryUrl>
     <Deterministic>true</Deterministic>
+    <PackageId>SureWx.EntityFramework6.Npgsql</PackageId>
+    <Version>6.4.3</Version>
   </PropertyGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources/*" />

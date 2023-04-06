@@ -54,7 +54,11 @@ namespace EntityFramework6.Npgsql.Tests
                 }
                 var someParameter = "Some";
                 Assert.IsTrue(context.Posts.Any(p => p.Title.StartsWith(someParameter)));
+                Assert.IsTrue(context.Posts.All(p => p.Title != null));
+                Assert.IsTrue(context.Posts.Any(p => someParameter != null));
                 Assert.IsTrue(context.Posts.Select(p => p.VarbitColumn == varbitVal).First());
+                Assert.IsTrue(context.Posts.All(p => p.VarbitColumn != null));
+                Assert.IsTrue(context.Posts.Any(p => varbitVal != null));
                 Assert.IsTrue(context.Posts.Select(p => p.VarbitColumn == "10011").First());
                 Assert.AreEqual(1, context.NoColumnsEntities.Count());
             }
@@ -144,6 +148,77 @@ namespace EntityFramework6.Npgsql.Tests
                 {
                     Assert.Less(post.Rating, 3);
                 }
+            }
+        }
+
+        [Test]
+        public void Select_Ef_Timezone()
+        {
+            var createdOnDate = new DateTimeOffset(2020, 12, 03, 22, 23, 0, TimeSpan.Zero);
+            using (var context = new BloggingContext(ConnectionString))
+            {
+                context.Logs.Add(new Log()
+                {
+                    CreationDate = createdOnDate
+                });
+                context.SaveChanges();
+            }
+
+            using (var context = new BloggingContext(ConnectionString))
+            {
+                context.Database.ExecuteSqlCommand("SET TIMEZONE='UTC';");
+                var query = context.Logs.Select(p => NpgsqlDateTimeFunctions.Timezone("Pacific/Honolulu", p.CreationDate));
+                var createdOnDateInTimeZone = query.FirstOrDefault();
+                Assert.AreEqual(new DateTime(2020, 12, 03, 12, 23, 0), createdOnDateInTimeZone);
+            }
+        }
+
+        [Test]
+        public void Select_Ef_StringAgg()
+        {
+            DateTime createdOnDate = new DateTime(2014, 05, 08);
+            using (var context = new BloggingContext(ConnectionString))
+            {
+                var blog = new Blog()
+                {
+                    Name = "Blog 1"
+                };
+                blog.Posts = new List<Post>();
+
+                blog.Posts.Add(new Post()
+                {
+                    Content = "Content 1",
+                    Rating = 1,
+                    Title = "Title 1",
+                    CreationDate = createdOnDate
+                });
+                blog.Posts.Add(new Post()
+                {
+                    Content = "Content 2",
+                    Rating = 2,
+                    Title = "Title 2",
+                    CreationDate = createdOnDate
+                });
+                blog.Posts.Add(new Post()
+                {
+                    Content = "Content 3",
+                    Rating = 3,
+                    Title = "Title 3",
+                    CreationDate = createdOnDate
+                });
+
+                context.Blogs.Add(blog);
+                context.SaveChanges();
+            }
+
+            using (var context = new BloggingContext(ConnectionString))
+            {
+                context.Database.Initialize(true);
+                var query = context.Posts
+                    .GroupBy(p => p.BlogId)
+                    .Select(g => g.Select(x => x.Title).StringAgg());
+                var result = query.FirstOrDefault();
+                Assert.AreEqual("Title 1, Title 2, Title 3", result);
             }
         }
 
@@ -791,7 +866,7 @@ namespace EntityFramework6.Npgsql.Tests
                 Console.WriteLine(query.ToString());
                 StringAssert.AreEqualIgnoringCase(
                     "SELECT  CASE  WHEN (COALESCE(@p__linq__0,E'default_value') IS NULL) THEN (E'')"
-                    + " WHEN (@p__linq__0 IS NULL) THEN (E'default_value') ELSE (@p__linq__0) END  ||"
+                    + " WHEN (CAST (@p__linq__0 AS varchar) IS NULL) THEN (E'default_value') ELSE (@p__linq__0) END  ||"
                     + " E'_postfix' AS \"C1\" FROM \"dbo\".\"Blogs\" AS \"Extent1\"",
                     query.ToString());
             }
@@ -819,7 +894,7 @@ namespace EntityFramework6.Npgsql.Tests
                 Console.WriteLine(query.ToString());
                 StringAssert.AreEqualIgnoringCase(
                     "SELECT  CASE  WHEN (COALESCE(@p__linq__0,COALESCE(@p__linq__1,@p__linq__2)) IS NULL)"
-                    + " THEN (E'') WHEN (@p__linq__0 IS NULL) THEN (COALESCE(@p__linq__1,@p__linq__2)) ELSE"
+                    + " THEN (E'') WHEN (CAST (@p__linq__0 AS varchar) IS NULL) THEN (COALESCE(@p__linq__1,@p__linq__2)) ELSE"
                     + " (@p__linq__0) END  || E'_postfix' AS \"C1\" FROM \"dbo\".\"Blogs\" AS \"Extent1\"",
                     query.ToString());
             }
